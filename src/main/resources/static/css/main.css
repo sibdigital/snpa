@@ -1,0 +1,87 @@
+#header{
+    display: grid;
+    grid-template-areas:
+            "hlogo hlink hmenu";
+    grid-template-rows: 45px;
+    grid-template-columns: 90px 1fr 94px;
+    grid-gap: 1px;
+    margin: 0;
+    background: #2a5faa;
+    color: #FFFFFF;
+    align-items: center;
+    border: none;
+}
+#hlogo {
+    grid-area: hlogo;
+    margin: 10px 30px 10px 30px;
+}
+#hlink {
+    grid-area: hlink;
+}
+#header a {
+    color: #FFFFFF;
+}
+#header a:hover {
+    color: #F0F0F0;
+}
+#hmenu {
+    grid-area: hmenu;
+}
+#hlogo img {
+    width: 100%;
+    height: 100%;
+}
+#menu {
+    padding: 0;
+}
+.menu-block {
+    display: grid;
+    grid-template-areas:
+            "micon mtext";
+    grid-template-rows: 45px;
+    grid-template-columns: 45px 1fr;
+    grid-gap: 1px;
+    margin: 0;
+    background: #FFFFFF;
+    align-items: center;
+    width: 100%;
+    height: 45px;
+    color: gray;
+    cursor: pointer;
+}
+.menu-block:hover {
+    color: #2a5faa;
+}
+.micon {
+    grid-area: micon;
+    margin: auto;
+}
+.mtext {
+    grid-area: mtext;
+}
+.current-menu-item {
+    color: black;
+    border-top: #cfcfcf solid 1px;
+    border-bottom: #cfcfcf solid 1px;
+    border-left: #2a5faa solid 3px;
+}
+
+.bad-message {
+    color: darkred;
+}
+
+.chip-action {
+    color: #00852a;
+    background-color: #daf5e2;
+}
+.chip-payment-type {
+    color: #5e35b1;
+    background-color: #e7daff;
+}
+.chip-life-situation {
+    color: #926400;
+    background-color: #fcf2cf;
+}
+.chips {
+    border-bottom: 0;
+}

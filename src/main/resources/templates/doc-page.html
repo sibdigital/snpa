@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <base href="${pageContext.request.contextPath}">
+    <meta charset="UTF-8" http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8"/>
+    <title th:text="${regPractice.name}"></title>
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/regular.min.css">
+    <link rel="stylesheet" href="css/solid.min.css">
+    <link rel="stylesheet" href="css/doc-page.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/materialize.min.js"></script>
+</head>
+<body>
+
+<header id="pageHeader" th:insert="~{partials/main :: header}"></header>
+
+<content id="pageContent">
+    <div class="col s12">
+        <div class="row">
+            <div class="input-field col s12">
+                <button onclick="window.history.back()" class="btn"><i class="fas fa-arrow-left"></i></button>
+                <h6 class="title" th:if="${idParent}">
+                    Родительский документ:
+                    <a th:href="@{'docPage?id='+${idParent}}" th:text="${regPractice.parentName}"></a>
+                    <span class="bad-message" th:if="${expiredDate}" th:text="' Утратил силу: ' + ${#dates.format(expiredDate, 'dd-MM-yyyy')}"></span>
+                </h6>
+                <h6 class="title" th:if="${regPractice.docType} == 'p'">Письмо</h6>
+                <h5 class="title" th:text="${regPractice.name}"></h5>
+                <h6 class="title" th:if="${regPractice.number!=''}" th:text="'Номер: ' + ${regPractice.number}"></h6>
+                <h6 class="title" th:if="${regPractice.dateOfDocument}" th:text="'Дата: ' + ${#dates.format(regPractice.dateOfDocument, 'dd-MM-yyyy')}"></h6>
+<!--
+                <h6 class="title" th:text="'Список присоединённых файлов(' + ${regPractice.files.length} +'):'"></h6>
+                <div th:if="${regPractice.files.length != 0}">
+                    <div th:each="file, stat : ${regPractice.files}">
+                        <span th:text="${stat.count} + ') '"></span>
+                        <a th:text="${file}" th:href="@{'download?id=' + ${regPractice.id} + '&number=' + ${stat.count}}"></a>
+                    </div>
+                </div>
+-->
+                <div th:if="${regPractice.dateEnd}">
+                    <span class="bad-message" th:if="${regPractice.dateEnd.before(#dates.createNow())}" th:text="' Утратил силу ' + ${#dates.format(regPractice.dateEnd, 'dd-MM-yyyy')}"></span>
+                </div>
+            </div>
+        </div>
+        <div th:if="${tagFormList.size()!=0}" class="row">
+            <div class="input-field col s12 chips">
+                <div th:if="${currentTagForm.type == 'A'}" class="chip chip-action" th:each="currentTagForm, stat : ${tagFormList}" th:text="${currentTagForm.name}"></div>
+                <div th:if="${currentTagForm.type == 'P'}" class="chip chip-payment-type" th:each="currentTagForm, stat : ${tagFormList}" th:text="${currentTagForm.name}"></div>
+                <div th:if="${currentTagForm.type == 'L'}" class="chip chip-life-situation" th:each="currentTagForm, stat : ${tagFormList}" th:text="${currentTagForm.name}"></div>
+                <div th:if="${currentTagForm.type == 'V'}" class="chip" th:each="currentTagForm, stat : ${tagFormList}" th:text="${currentTagForm.name}"></div>
+            </div>
+        </div>
+        <div class="row" th:if="${regPractice.content!=''}">
+            <div class="input-field col s12">
+                <pre th:text="${regPractice.content}"></pre>
+            </div>
+        </div>
+        <div class="row" th:if="${regPracticeChildrenIterable.size()!=0}">
+            <div class="input-field col s12">
+                <ul class="collapsible">
+                    <li th:each="regPracticeChild, stat : ${regPracticeChildrenIterable}">
+                        <div class="collapsible-header" th:text="${regPracticeChild.name}"></div>
+                        <div class="collapsible-body">
+                            <a th:href="@{'docPage?id='+${regPracticeChild.id}}" th:text="'Открыть документ № ' + ${regPracticeChild.number}"></a>
+                            <br>
+                            <pre th:text="${regPracticeChild.content}"></pre>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row" th:if="${relatedDocumentList12.size()!=0}">
+            <div class="input-field col s12">
+                <ul class="collection">
+                    <li class="collection-item" th:each="relatedDocument, stat : ${relatedDocumentList12}">
+                        <span th:text="${stat.count} + '. ' "></span>
+                        <span th:text="'Данный документ ' "></span>
+                        <span th:text="${relatedDocument.type} + ': ' "></span>
+                        <a th:href="@{'docPage?id='+ ${relatedDocument.regPractice.id}}" th:text="${relatedDocument.regPractice.name}"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row" th:if="${relatedDocumentList21.size()!=0}">
+            <div class="input-field col s12">
+                <ul class="collection">
+                    <li class="collection-item" th:each="relatedDocument, stat : ${relatedDocumentList21}">
+                        <span th:text="${stat.count} + '. ' "></span>
+                        <a th:href="@{'docPage?id='+ ${relatedDocument.regPractice.id}}" th:text="${relatedDocument.regPractice.name}"></a>
+                        <span th:text="${relatedDocument.type} + ': ' "></span>
+                        <span th:text="'Данный документ ' "></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</content>
+
+<footer id="pageFooter" th:insert="~{partials/main :: footer}"></footer>
+
+</body>
+<script th:inline="javascript">
+    $(document).ready(function() {
+        $('.collapsible').collapsible({
+            "accordion": false
+        });
+    });
+</script>
+</html>

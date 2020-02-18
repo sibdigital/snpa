@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <base href="${pageContext.request.contextPath}">
+    <meta charset="UTF-8">
+    <title th:text="${searchForm.searchText}"></title>
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <link rel="stylesheet" href="css/select2-like-materialize.css">
+    <link rel="stylesheet" href="css/select2.min.css"/>
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/regular.min.css">
+    <link rel="stylesheet" href="css/solid.min.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/jstree/default/style.css">
+
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/materialize.min.js"></script>
+    <script src="js/select2.min.js"></script>
+    <script src="js/jstree.min.js"></script>
+    <script src="js/animationCounter.min.js"></script>
+
+</head>
+<body>
+
+<header id="pageHeader" th:insert="~{partials/main :: header}"></header>
+
+<content id="pageContent">
+
+    <div class="col s12">
+        <form action="#" th:action="@{search}" th:object="${searchForm}" th:method="GET">
+            <div class="row">
+                <div class="input-field col s8">
+                    <input id="input-search-text" class="autocomplete" th:field="*{searchText}" placeholder="Поиск..."  autocomplete="off"/>
+                    <!--<div><i id="more-setting" style="cursor: pointer;">ещё</i></div>-->
+                </div>
+                <div class="input-field col s2">
+                    <select id="select-sort-type" th:field="*{searchSortType}">
+                        <option value="sortByDate" selected>Дате</option>
+                        <option value="sortByRelevance">Релевантности</option>
+                    </select>
+                    <label>Сортировать по</label>
+                </div>
+                <div class="input-field col s1">
+                    <button id="input-button" class="btn"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="input-field col s1">
+                    <!--<a id="more-setting" class="btn"><i class="fas fa-tags"></i></a>-->
+                    <a class="btn waves-effect waves-light modal-trigger" href="#modal_select" title="Добавить тег"><i class="fas fa-tags"></i></a>
+                </div>
+            </div>
+            <div id="setting" class="row">
+                <div class="input-field col s3">
+                    <select id="select-search-type" th:field="*{searchType}">
+                        <option value="ALL">Всё</option>
+                        <option value="P">Письма</option>
+                        <option value="R">НПА</option>
+                        <option value="Z">Федеральные законы</option>
+                    </select>
+                    <label for="select-search-type">Тип поиска</label>
+                </div>
+                <div class="input-field col s3">
+                    <select id="select-search-relevance" th:field="*{searchRelevance}">
+                        <option value="ALL">Все</option>
+                        <option value="VALID">Действующие</option>
+                        <option value="EXPIRED">Утратившие силу</option>
+                        <option value="INVALID">Не вступившие в силу</option>
+                    </select>
+                    <label for="select-search-type">Актуальность</label>
+                </div>
+                <div class="input-field col s3">
+                    <input id="input-search-date-of-document-start" th:field="*{searchDateOfDocumentStart}" type="text" class="datepicker">
+                    <label for="input-search-date-of-document-start">Дата принятия/отправки С</label>
+                </div>
+                <div class="input-field col s3">
+                    <input id="input-search-date-of-document-end" th:field="*{searchDateOfDocumentEnd}" type="text" class="datepicker">
+                    <label for="input-search-date-of-document-end">Дата принятия/отправки ПО</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s10">
+                    <div id="tagList" class="chips"></div>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="input-field col s7">
+                <div id="preloader" class="preloader-wrapper big active">
+                    <div class="spinner-layer spinner-blue-only">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div><div class="gap-patch">
+                        <div class="circle"></div>
+                    </div><div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                    </div>
+                </div>
+                <span id="query-info" class="helper-text" data-error="wrong" data-success="right" style="font-size: 16px; color: rgba(251, 8, 8, 0.85)"></span>
+                <div id="search-result"></div>
+                <div id="pagination-list"></div>
+            </div>
+            <div class="input-field col s5 sticky">
+                <span class="helper-text" data-error="wrong" data-success="right"> </span>
+                <div id="preview">
+                    <ul class="collection with-header">
+                        <li class="collection-header">
+                            <h5 id="preview-header">
+
+                            </h5>
+                        </li>
+                        <li id="preview-date-of-document" class="collection-item"></li>
+                        <li id="preview-date-end" class="collection-item bad-message"></li>
+                        <li id="preview-tags" class="collection-item chips"></li>
+                        <li id="preview-text" class="collection-item" style="text-align: justify;"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="logo-center" style="display: none;">Платформа систематизации НПА</div>
+
+    <div class="stat" style="display: none;">
+        <div class="stat-item">
+            <div class="stat-item-content">
+                <h6>НОРМАТИВНО-ПРАВОВЫЕ АКТЫ</h6>
+                <ul>
+                    <li>Федеральные законы</li>
+                    <li>Указы</li>
+                    <li>Постановления</li>
+                    <li>Приказы</li>
+                </ul>
+            </div>
+            <div class="stat-item-footer">
+                <span id="counter-1"></span>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-item-content">
+                <h6>РАЗДЕЛЫ НПА</h6>
+                <ul>
+                    <li>Статьи ФЗ</li>
+                    <li>Пункты</li>
+                </ul>
+            </div>
+            <div class="stat-item-footer">
+                <span id="counter-2"></span>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-item-content">
+                <h6>ПРАВОПРИМЕНИ-ТЕЛЬНАЯ ПРАКТИКА</h6>
+                <ul>
+                    <li>Письма</li>
+                    <li>Обзоры практики</li>
+                </ul>
+            </div>
+            <div class="stat-item-footer">
+                <span id="counter-3"></span>
+            </div>
+        </div>
+    </div>
+</content>
+
+<footer id="pageFooter" th:insert="~{partials/main :: footer}"></footer>
+
+<!-- Modal Structure -->
+<div id="modal_select" class="modal modal-fixed-footer">
+    <!--<div class="modal-header">-->
+    <div class="navbar-fixed" style="height: 56px; line-height: 56px;">
+        <nav>
+            <div class="nav-wrapper" style="background-color: #fff; color: #323C47;">
+                <a href="search#!" style="font-size: 25px; color: #343434; padding-left: 10px;">Выберите теги</a>
+                <ul class="right hide-on-med-and-down">
+                    <li><a href="search#!" data-type="select" class="modal-close waves-effect waves-green btn-flat">Выбрать</a></li>
+                    <li><a href="search#!" class="modal-close waves-effect waves-red btn-flat">Закрыть</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div class="modal-content" style="background-color:#f8f8f8;">
+        <div class="row" style="padding: 4px;">
+            <div id="selected-tag-list" class="chips" style="min-height: 0px;"></div>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input id="search-input" placeholder="Поиск..."  autocomplete="off"/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="modal-select-tag-list" class="col s8"></div>
+            <div id="top-tag-list" class="col s4"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script th:inline="javascript">
+
+    let searchForm = [[${searchForm}]];
+    let tagList = [[${tagList}]];
+    let numbers = [[${numbers}]];
+    let showLogoCenter = true;
+
+    const A_COLOR = "#00852a";
+    const P_COLOR = "#5e35b1";
+    const L_COLOR = "#926400";
+
+    $(document).ready(function() {
+        //$('#setting').hide();
+        $('#preview').hide();
+        $('#select-tag-list').select2({width: "90%"});
+        $('#select-sort-type').formSelect();
+        $('#select-search-type').formSelect();
+        $('#select-search-relevance').formSelect();
+        $('input.autocomplete').autocomplete({
+            data: numbers,
+        });
+        // 47% 20% 1fr
+        $('.datepicker').datepicker({
+            container: 'html',
+            firstDay: true,
+            format: 'dd-mm-yyyy',
+            selectMonths: true,
+            selectYears: true,
+            minDate: new Date(1000,1,1),
+            maxDate: new Date(3000,1,1),
+            showClearBtn: true,
+            i18n: {
+                months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+                monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                weekdays: ["Воскресенье","Понедельник", "Вторник", "Среда", "Чеверг", "Пятница", "Суббота"],
+                weekdaysShort: ["Вс","Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+                weekdaysAbbrev: ["В","П", "В", "С", "Ч", "П", "С"],
+                cancel: 'Отмена',
+                clear: 'Очистить',
+                done: 'Ок'
+            },
+        });
+
+        if (searchForm.searchTagList !== null) {
+            $('#setting').show();
+            for (let i = 0; i < searchForm.searchTagList.length; i++)
+                pushTag(findTagByCode(searchForm.searchTagList[i]));
+        }
+
+        // если в сессии есть список результатов
+        // после загрузки страницы выполняем запрос на поиск
+        search(createQueryData())
+
+        // Модальное окно выбора тега - подготовка списка тегов
+        let tagsTree = [
+            { id: "A", parent: "#", text: "Действие", a_attr: {style: "color: " + A_COLOR} },
+            { id: "P", parent: "#", text: "Вид выплаты", a_attr: {style: "color: " + P_COLOR} },
+            { id: "L", parent: "#", text: "Жизненная ситуация", a_attr: {style: "color: " + L_COLOR} },
+        ];
+        tagList.forEach(function (val, item) {
+            if(val.code.toString().substring(0, 1) == "V") {
+                return
+            }
+            let tItem = {};
+            tItem.id = val.code;
+            tItem.text = val.name;
+            switch (val.code.toString().substring(0, 1)) {
+                case "A":
+                    tItem.text = truncateTagText(tItem.text, '(Действие)');
+                    tItem.a_attr = {style: "color: " + A_COLOR, title: tItem.text}
+                    break;
+                case "P":
+                    tItem.text = truncateTagText(tItem.text, '(Вид выплаты)');
+                    tItem.a_attr = {style: "color: " + P_COLOR, title: tItem.text}
+                    break;
+                case "L":
+                    tItem.text = truncateTagText(tItem.text, '(Жизненная ситуация)');
+                    tItem.a_attr = {style: "color: " + L_COLOR, title: tItem.text}
+                    break;
+            }
+
+            switch (val.parentCode) {
+                case "A":
+                    tItem.parent = "A";
+                    break;
+                case "P":
+                    tItem.parent = "P";
+                    break;
+                case "L":
+                    tItem.parent = "L";
+                    break;
+                default:
+                    tItem.parent = val.parentCode;
+            }
+            tagsTree.push(tItem);
+        });
+
+        _initTree(tagsTree);
+
+        $('.modal').modal();
+
+        if(showLogoCenter && searchForm.searchTagList == null && searchForm.searchText == null) {
+            $('.stat').show();
+            $('#logo-center').show();
+            $('#logo-center-ver').show();
+        } else {
+            $('.stat').hide();
+            $('#logo-center').hide();
+            $('#logo-center-ver').hide();
+        }
+
+        $('#counter-1').animationCounter({
+            start: 0,
+            end: 0,
+            step: 15,
+            delay: 8
+        });
+
+        $('#counter-2').animationCounter({
+            start: 0,
+            end: 0,
+            step: 218,
+            delay: 8
+        });
+
+        $('#counter-3').animationCounter({
+            start: 0,
+            end: 0,
+            step: 374,
+            delay: 88
+        });
+    });
+
+    $('#more-setting').on('click', function () {
+        $('#setting').toggle(300);
+    });
+
+    $('#select-tag-list').on('change', function () {
+        pushTag(findTagByCode($(this).children("option:selected").val()))
+    });
+
+    $('.tops-item').onclick = function () {
+        pushTagModal(findTagByCode($(this).attr('data-id')))
+    };
+
+    $('.tag-filter:input').on('change', function () {
+
+        $('#select-tag-list').empty();
+
+        let A = $('#checkbox-action').prop('checked');
+        let P = $('#checkbox-payment-type').prop('checked');
+        let L = $('#checkbox-life-situation').prop('checked');
+
+        for (let i = 0; i < tagList.length; i++) {
+
+            if ((tagList[i].type === 'A') && A)
+                $('#select-tag-list').append($('<option>', {value:tagList[i].code, text:tagList[i].name}));
+
+            if ((tagList[i].type === 'P') && P)
+                $('#select-tag-list').append($('<option>', {value:tagList[i].code, text:tagList[i].name}));
+
+            if ((tagList[i].type === 'L') && L)
+                $('#select-tag-list').append($('<option>', {value:tagList[i].code, text:tagList[i].name}));
+
+        }
+
+        $('#select-tag-list').select2({width: "100%"});
+
+    });
+
+    // post запрос отправляет
+    function search(data) {
+        $('#search-result').empty();
+        $('#pagination-list').empty();
+        $('#preloader').show();
+        fetch('search', {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, cors, *same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrer: 'no-referrer', // no-referrer, *client
+            body: JSON.stringify(data), // тип данных в body должен соответвовать значению заголовка "Content-Type"
+        }).then(function(response) {
+            return response.json();
+        }).then(function(content) {
+            $('#preloader').hide();
+
+            $('#query-info').text('Найдено: ' + content.regPractice2Iterable.length + ' результатов (' + content.time + ' мс)');
+            createPageSearch(content.regPractice2Iterable, 0);
+            getTopTags(content.regPractice2Iterable);
+        }).catch(function (reason) {
+            console.log(reason);
+        });
+    }
+
+    // принимает page пришедших результатов и рисует их на странице
+    function createPageSearch(content, number) {
+        //$('.stat').hide();
+        //$('#logo-center').hide();
+        showLogoCenter = false;
+
+        $('#search-result').empty();
+
+        let start = number * 10;
+        let end = number * 10 + 9;
+        if(end > content.length) end = content.length - 1;
+
+        setPreView(content[start]);
+
+        let divParent = $('<div>', {class: 'collection'});
+
+        for (let i = start; i <= end; i++) {
+            let div = i === start ?
+                $('<div>', {class: 'collection-item avatar active'}) : $('<div>', {class: 'collection-item avatar'});
+            div.append($('<input>', {class: 'practice-code', value: content[i].code, hidden: true}));
+
+            let span = $('<span>', {});
+            if (content[i].dateEnd !== null)
+                if (new Date(content[i].dateEnd) < Date.now())
+                    span = $('<span>', {class: 'bad-message', text: '(Утратило силу) '});
+
+            span.append($('<a>', {class: 'title', href: 'docPage?id='+content[i].id, text: createTitle(content[i].name)}));
+
+            if (content[i].idParent) {
+                span.append($('<span>', {text: ' ('}));
+                span.append($('<a>', {class: 'title', href: 'docPage?id='+content[i].idParent, text: content[i].parentName}));
+                span.append($('<span>', {text: ')'}));
+            }
+
+            div.append(span);
+
+            div.append($('<p>', {class: 'pre-content', text: getPreContent(content[i].content)}));
+            let a = $('<a>', {class: 'secondary-content'}).append($('<i>', {class: 'far fa-eye', value: content[i].id}));
+            a.on('click', function () {
+                setPreView(findByIdInContent($(this).parent().children('input').val(), content))
+            });
+            div.append(a);
+            divParent.append(div);
+        }
+        $('#search-result').append(divParent);
+
+        createPagination(content, {
+            first: number === 0 ? true : false,
+            last: number + 1 === countTotalPages(content.length) ? true : false,
+            totalPages: countTotalPages(content.length),
+            number: number,
+        });
+    }
+
+    // принимает page пришедших результатов и рисует пагинацию на странице
+    function createPagination(content, data) {
+        $('#pagination-list').empty();
+
+        let ul = $('<ul>', {class: 'pagination'});
+
+        // сначала стрелочку назад
+        if (data.first) {
+            ul.append($('<li>', {class: 'disabled'}).append(
+                $('<a>', {}).append($('<i>', {class: 'fas fa-chevron-left'}))
+            ));
+        } else {
+            ul.append($('<li>', {class: 'waves-effect'}).append(
+                $('<a>', {}).append($('<i>', {class: 'fas fa-chevron-left'}))
+            ));
+        }
+
+        // определяем с какой циферки начинается пагинация
+        let start = data.number - 5;
+        if (start < 0) start = 0;
+        if (start > data.totalPages - 4) start = data.totalPages - 10;
+        // циферки добавляются
+        for (let i = start; i < start + 10; i++) {
+            if ((i < data.totalPages) && (i >= 0)) {
+                if (i === data.number) {
+                    ul.append($('<li>', {class: 'active'}).append(
+                        $('<a>', {text: i + 1})
+                    ));
+                } else {
+                    let a = $('<a>', {text: i + 1});
+                    a.on('click', function () {
+                        createPageSearch(content, $(this).text()-1)
+                    });
+                    ul.append($('<li>', {class: 'waves-effect'}).append(a));
+                }
+            }
+        }
+
+        // и в конце стрелочку вперёд
+        if (data.last) {
+            ul.append($('<li>', {class: 'disabled'}).append(
+                $('<a>', {}).append($('<i>', {class: 'fas fa-chevron-right'}))
+            ));
+        } else {
+            ul.append($('<li>', {class: 'waves-effect'}).append(
+                $('<a>', {}).append($('<i>', {class: 'fas fa-chevron-right'}))
+            ));
+        }
+
+        $('#pagination-list').append(ul);
+
+    }
+
+    // обрезает слишком длинный контент
+    function getPreContent(content) {
+        let index = content.indexOf($('#input-search-text').val());
+        let start = index - 100;
+        let end = index + 100;
+        if (start < 0) start = 0;
+        if (end > content.length) end = content.length;
+
+        if (start === 0) return content.substring(start, end) + '...';
+        if (end === content.length) return '...' + content.substring(start, end);
+
+        return '...' + content.substring(start, end) + '...';
+    }
+
+    // возвращает список тегов в виде массива кодов тегов
+    function getTagListFromPage() {
+        let tagMas = [];
+        let chips = $('.chip');
+
+        for (let i = 0; i < chips.length; i++) {
+            tagMas.push($(chips[i]).attr('value'));
+        }
+        return tagMas;
+    }
+
+    // рисует превью на странице
+    function setPreView(content) {
+        if (content === undefined) return;
+
+        $('#preview').show();
+
+        $('#preview-header').text(createPreViewTitle(content.name));
+
+        if (content.dateOfDocument != null) {
+            $('#preview-date-of-document').show();
+            $('#preview-date-of-document').text(getStringDate(content.dateOfDocument));
+        } else {
+            $('#preview-date-of-document').hide();
+        }
+
+        $('#preview-date-end').hide();
+        if (content.dateEnd !== null) {
+            let dateEnd = new Date(content.dateEnd);
+            if (dateEnd < Date.now()) {
+                $('#preview-date-end').show();
+                $('#preview-date-end').text('Утратило силу ' + getStringDate(content.dateEnd));
+            }
+        }
+
+        getTags(content.code);
+
+        $('#preview-text').text(createPreViewContent(content.content));
+
+        setActivePractice(content.code);
+    }
+
+    function getTags(code) {
+        let body = {
+          "code" : code
+        };
+        fetch('getTagFormList', {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, cors, *same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrer: 'no-referrer', // no-referrer, *client
+            body: JSON.stringify(body), // тип данных в body должен соответвовать значению заголовка "Content-Type"
+        }).then(function(response) {
+            return response.json();
+        }).then(function(content) {
+            $('#preview-tags').empty();
+            for (let i = 0; i < content.length; i++) {
+                if (content[i].type == 'A') $('#preview-tags').append($('<div>', {class: 'chip chip-action', text: content[i].name}));
+                if (content[i].type == 'L') $('#preview-tags').append($('<div>', {class: 'chip chip-life-situation', text: content[i].name}));
+                if (content[i].type == 'P') $('#preview-tags').append($('<div>', {class: 'chip chip-payment-type', text: content[i].name}));
+                if (content[i].type == 'V') $('#preview-tags').append($('<div>', {class: 'chip', text: content[i].name}));
+            }
+        }).catch(function(reason) {
+            console.log(reason);
+        });
+
+    }
+
+
+    function getTopTags(regPractice2Iterable) {
+        let mas = [];
+        for (key in regPractice2Iterable) {
+            mas.push(regPractice2Iterable[key].code);
+        }
+        let body = {
+            "idPractices" : mas
+        };
+        fetch('getTopTagsByPractices', {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, cors, *same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrer: 'no-referrer', // no-referrer, *client
+            body: JSON.stringify(body) // тип данных в body должен соответвовать значению заголовка "Content-Type"
+        }).then(function(response) {
+            return response.json();
+        }).then(function(content) {
+            // console.log(content);
+            $('#top-tag-list').empty();
+            $('#top-tag-list').append($('<p>', {text: "Рекомендуемые теги:"}));
+            $('#top-tag-list').append($('<ul>', {id: "tops", class: "collection"}));
+            for (let i = 0; i < content.object.length; i++) {
+                //P
+                if (content.object[i].type == 1) $('#tops').append('<li class="tops-item" data-id=' + "P".concat(content.object[i].code) + ' onclick="pushTagModal(findTagByCode(\''+"P".concat(content.object[i].code)+'\'))"><div class="chip" style="height: auto;">' + content.object[i].name + '</div></li>');
+                //A
+                if (content.object[i].type == 2) $('#tops').append('<li class="tops-item" data-id=' + "A".concat(content.object[i].code) + ' onclick="pushTagModal(findTagByCode(\''+"A".concat(content.object[i].code)+'\'))"><div class="chip" style="height: auto;">' + content.object[i].name + '</div></li>');
+                //L
+                if (content.object[i].type == 3) $('#tops').append('<li class="tops-item" data-id=' + "L".concat(content.object[i].code) + ' onclick="pushTagModal(findTagByCode(\''+"L".concat(content.object[i].code)+'\'))"><div class="chip" style="height: auto;">' + content.object[i].name + '</div></li>');
+                //V
+                if (content.object[i].type == 4) $('#tops').append('<li class="tops-item" data-id=' + "V".concat(content.object[i].code) + ' onclick="pushTagModal(findTagByCode(\''+"V".concat(content.object[i].code)+'\'))"><div class="chip" style="height: auto;">' + content.object[i].name + '</div></li>');
+            }
+            }).catch(function(reason) {
+            console.log(reason);
+        });
+
+    }
+
+    function setActivePractice(code) {
+        $('.practice-code').each(function () {
+            if ($(this).val() === code) {
+                $(this).parent().addClass('active');
+            } else {
+                $(this).parent().removeClass('active');
+            }
+        })
+    }
+
+    function getStringDate(date) {
+        let dateR = new Date(date);
+        return ('0' + dateR.getDate()).slice(-2) + '-' + ('0' + (dateR.getMonth() + 1)).slice(-2) + '-' + dateR.getFullYear();
+    }
+
+    function createQueryData() {
+        return {
+            searchText: $('#input-search-text').val(),
+            searchPage: 0,
+            searchDate: $('#input-search-date').val(),
+            searchDateOfDocumentStart: $('#input-search-date-of-document-start').val(),
+            searchDateOfDocumentEnd: $('#input-search-date-of-document-end').val(),
+            searchType: $('#select-search-type').val(),
+            searchRelevance: $('#select-search-relevance').val(),
+            searchTagList: getTagListFromPage() //тут нада список тегов опрашивать со страницы
+        }
+    }
+
+    function createPreViewTitle(title) {
+        if (title.length < 101) return title;
+        return title.substr(0, 100) + '...';
+    }
+
+    function createTitle(title) {
+        if (title.length < 56) return title;
+        return title.substr(0, 55) + '...';
+    }
+
+    function createPreViewContent(content) {
+        if (content.length < 1001) return content;
+        return content.substr(0, 1000) + '...';
+    }
+
+    function pushTag(tag) {
+        let div = $('<div>', {class: 'chip', text: tag.name, value: tag.code});
+
+        switch (tag.code.toString().substring(0, 1)) {
+            case "A":
+                div = $('<div>', {class: 'chip chip-action', text: tag.name, value: tag.code});
+                break;
+            case "P":
+                div = $('<div>', {class: 'chip chip-payment-type', text: tag.name, value: tag.code});
+                break;
+            case "L":
+                div = $('<div>', {class: 'chip chip-life-situation', text: tag.name, value: tag.code});
+                break;
+        }
+        div.append($('<i>', {class: 'close fas fa-times'}));
+        div.append($('<input>', {name: 'searchTagList', hidden:true, value: tag.code}));
+        $('#tagList').append(div);
+    }
+
+    function findTagByCode(code) {
+        for (let i = 0; i < tagList.length; i++)
+            if (tagList[i].code === code) return tagList[i];
+    }
+
+    function countTotalPages(size) {
+        let n = 0;
+        while (size > 0) {
+            size = size - 10;
+            n += 1;
+        }
+        return n;
+    }
+
+    function findByIdInContent(code, content) {
+        for (let i = 0; i < content.length; i++)
+            if (content[i].code === code) return content[i];
+    }
+
+    // Модальное окно выбора тега - Инициализируем нужные переменные
+    let ui = {
+            $tags: $('#modal-select-tag-list'),
+            $selectedTags: $('#selected-tag-list')
+        };
+
+    // Модальное окно выбора тега - Инициализация дерева категорий с помощью jstree
+    function _initTree(data) {
+        ui.$tags.jstree({
+            core: {
+                check_callback: true,
+                multiple: false,
+                data: data,
+                themes: {
+                    ellipsys: true
+                }
+            },
+            search: {
+                show_only_matches: true
+            },
+            plugins: ["sort", "search"]
+        }).bind('changed.jstree', function(e, data) {
+            tag = data.node.text;
+            pushTagModal(findTagByCode(data.node.id))
+        });
+
+        let to = false;
+        $('#search-input').keyup(function () {
+            if(to) { clearTimeout(to); }
+            to = setTimeout(function () {
+                let v = $('#search-input').val();
+                ui.$tags.jstree(true).search(v);
+            }, 250);
+        });
+    }
+
+    // Модальное окно выбора тега - доабвить в список выбранных тегов
+    function pushTagModal(tag) {
+        let div = $('<div>', {class: 'chip', text: tag.name, value: tag.code});
+
+        switch (tag.code.toString().substring(0, 1)) {
+            case "A":
+                div = $('<div>', {class: 'chip chip-action', text: tag.name, value: tag.code});
+                break;
+            case "P":
+                div = $('<div>', {class: 'chip chip-payment-type', text: tag.name, value: tag.code});
+                break;
+            case "L":
+                div = $('<div>', {class: 'chip chip-life-situation', text: tag.name, value: tag.code});
+                break;
+        }
+        div.append($('<i>', {class: 'close fas fa-times'}));
+        div.append($('<input>', {name: 'searchTagList', hidden:true, value: tag.code}));
+        ui.$selectedTags.append(div);
+    }
+
+    $('.modal-close[data-type="select"]').on('click', function () {
+        // добавить в наружний список
+        while(ui.$selectedTags.children().length)
+        {
+            $('#tagList').append(ui.$selectedTags.children()[0]);
+        }
+    });
+
+    function truncateTagText(tagText, subStr){
+        let ind = tagText.indexOf(subStr);
+        if(ind == 0) {
+            return tagText;
+        } else {
+            return tagText.substring(0, ind);
+        }
+    }
+
+    $('#input-button').on('click', function(){
+        // $('.stat').hide();
+        // $('#logo-center').hide();
+        showLogoCenter = false;
+    });
+
+</script>
+</html>
