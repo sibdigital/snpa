@@ -136,7 +136,7 @@
                     </ul>
                 </div>
                 <div class="stat-item-footer">
-                    <span id="counter-1" class="counter" th:text="${statsCounter[0].counter}"></span>
+                    <span id="counter-1" class="counter" th:text="${statsCounter!=null ? statsCounter[0].counter : ''}"></span>
                 </div>
             </div>
             <div class="stat-item">
@@ -148,7 +148,7 @@
                     </ul>
                 </div>
                 <div class="stat-item-footer">
-                    <span id="counter-2" class="counter" th:text="${statsCounter[1].counter}"></span>
+                    <span id="counter-2" class="counter" th:text="${statsCounter!=null ? statsCounter[1].counter : ''}"></span>
                 </div>
             </div>
         </div>
@@ -162,7 +162,7 @@
                     </ul>
                 </div>
                 <div class="stat-item-footer">
-                    <span id="counter-3" class="counter" th:text="${statsCounter[2].counter}"></span>
+                    <span id="counter-3" class="counter" th:text="${statsCounter!=null ? statsCounter[2].counter : ''}"></span>
                 </div>
             </div>
             <div class="stat-item">
@@ -170,7 +170,7 @@
                     <h6>ПОСТАНОВЛЕНИЯ ПРАВЛЕНИЯ ПФР</h6>
                 </div>
                 <div class="stat-item-footer">
-                    <span id="counter-4" class="counter" th:text="${statsCounter[3].counter}"></span>
+                    <span id="counter-4" class="counter" th:text="${statsCounter!=null ? statsCounter[3].counter : ''}"></span>
                 </div>
             </div>
         </div>
@@ -439,7 +439,7 @@
                 if (new Date(content[i].dateEnd) < Date.now())
                     span = $('<span>', {class: 'bad-message', text: '(Утратило силу) '});
 
-            span.append($('<a>', {class: 'title', href: 'docPage?id='+content[i].id, text: createTitle(content[i].name)}));
+            span.append($('<a>', {class: 'title', href: 'docPage?id='+content[i].id, text: createTitle(content[i].name, 56)}));
 
             if (content[i].idParent) {
                 span.append($('<span>', {text: ' ('}));
@@ -521,10 +521,10 @@
     }
 
     // обрезает слишком длинный контент
-    function getPreContent(content) {
+    function getPreContent(content, limit = 100) {
         let index = content.indexOf($('#input-search-text').val());
-        let start = index - 100;
-        let end = index + 100;
+        let start = index - limit;
+        let end = index + limit;
         if (start < 0) start = 0;
         if (end > content.length) end = content.length;
 
@@ -683,9 +683,9 @@
         return title.substr(0, 100) + '...';
     }
 
-    function createTitle(title) {
-        if (title.length < 56) return title;
-        return title.substr(0, 55) + '...';
+    function createTitle(title, limit) {
+        if (title.length < limit) return title;
+        return title.substr(0, limit - 1) + '...';
     }
 
     function createPreViewContent(content) {
@@ -822,7 +822,7 @@
 
             let span = $('<span>', {});
 
-            span.append($('<a>', {class: 'title', href: 'docPage?id=' + doc.id, text: createTitle(doc.name)}));
+            span.append($('<a>', {class: 'title', href: 'docPage?id=' + doc.id, text: createTitle(doc.name, 100)}));
 
             if (doc.idParent) {
                 span.append($('<span>', {text: ' ('}));
@@ -832,7 +832,7 @@
 
             div.append(span);
 
-            div.append($('<p>', {class: 'pre-content', text: getPreContent(doc.content)}));
+            div.append($('<p>', {class: 'pre-content', text: getPreContent(doc.content, 200)}));
             let a = $('<a>', {class: 'secondary-content'}).append($('<i>', {class: 'far fa-eye', value: doc.id}));
             // a.on('click', function () {
             //     setPreView(findByIdInContent($(this).parent().children('input').val(), content))
