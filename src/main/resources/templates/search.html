@@ -20,7 +20,6 @@
     <script src="js/materialize.min.js"></script>
     <script src="js/select2.min.js"></script>
     <script src="js/jstree.min.js"></script>
-    <script src="js/animationCounter.min.js"></script>
 
 </head>
 <body>
@@ -124,43 +123,64 @@
 
     <div id="logo-center" style="display: none;">Платформа систематизации НПА</div>
 
-    <div class="stat" style="display: none;">
-        <div class="stat-item">
-            <div class="stat-item-content">
-                <h6>НОРМАТИВНО-ПРАВОВЫЕ АКТЫ</h6>
-                <ul>
-                    <li>Федеральные законы</li>
-                    <li>Указы</li>
-                    <li>Постановления</li>
-                    <li>Приказы</li>
-                </ul>
+    <div class="stat">
+        <div class="stat-block">
+            <div class="stat-item">
+                <div class="stat-item-content">
+                    <h6>НОРМАТИВНО-ПРАВОВЫЕ АКТЫ</h6>
+                    <ul>
+                        <li>Федеральные законы</li>
+                        <li>Указы</li>
+                        <li>Постановления</li>
+                        <li>Приказы</li>
+                    </ul>
+                </div>
+                <div class="stat-item-footer">
+                    <span id="counter-1" class="counter" th:text="${statsCounter[0].counter}"></span>
+                </div>
             </div>
-            <div class="stat-item-footer">
-                <span id="counter-1"></span>
+            <div class="stat-item">
+                <div class="stat-item-content">
+                    <h6>РАЗДЕЛЫ НПА</h6>
+                    <ul>
+                        <li>Статьи ФЗ</li>
+                        <li>Пункты</li>
+                    </ul>
+                </div>
+                <div class="stat-item-footer">
+                    <span id="counter-2" class="counter" th:text="${statsCounter[1].counter}"></span>
+                </div>
             </div>
         </div>
-        <div class="stat-item">
-            <div class="stat-item-content">
-                <h6>РАЗДЕЛЫ НПА</h6>
-                <ul>
-                    <li>Статьи ФЗ</li>
-                    <li>Пункты</li>
-                </ul>
+        <div class="stat-block">
+            <div class="stat-item">
+                <div class="stat-item-content">
+                    <h6>ПРАВОПРИМЕНИТЕЛЬНАЯ ПРАКТИКА</h6>
+                    <ul>
+                        <li>Письма Исполнительной дирекции</li>
+                        <li>Обзоры практики</li>
+                    </ul>
+                </div>
+                <div class="stat-item-footer">
+                    <span id="counter-3" class="counter" th:text="${statsCounter[2].counter}"></span>
+                </div>
             </div>
-            <div class="stat-item-footer">
-                <span id="counter-2"></span>
+            <div class="stat-item">
+                <div class="stat-item-content">
+                    <h6>ПОСТАНОВЛЕНИЯ ПРАВЛЕНИЯ ПФР</h6>
+                </div>
+                <div class="stat-item-footer">
+                    <span id="counter-4" class="counter" th:text="${statsCounter[3].counter}"></span>
+                </div>
             </div>
         </div>
-        <div class="stat-item">
-            <div class="stat-item-content">
-                <h6>ПРАВОПРИМЕНИ-ТЕЛЬНАЯ ПРАКТИКА</h6>
-                <ul>
-                    <li>Письма</li>
-                    <li>Обзоры практики</li>
-                </ul>
-            </div>
-            <div class="stat-item-footer">
-                <span id="counter-3"></span>
+
+        <div class="last-docs">
+            <div class="stat-item-last">
+                <div class="stat-item-content">
+                    <h6>ПОСЛЕДНИЕ ВВЕДЕННЫЕ ДОКУМЕНТЫ:</h6>
+                    <div id="last-docs"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -205,6 +225,7 @@
     let tagList = [[${tagList}]];
     let numbers = [[${numbers}]];
     let showLogoCenter = true;
+    let lastDocs = [[${lastDocs}]];
 
     const A_COLOR = "#00852a";
     const P_COLOR = "#5e35b1";
@@ -310,26 +331,20 @@
             $('#logo-center-ver').hide();
         }
 
-        $('#counter-1').animationCounter({
-            start: 0,
-            end: 0,
-            step: 15,
-            delay: 8
+        $('.counter').each(function () {
+            $(this).prop('Counter',0).animate({
+                Counter: $(this).text()
+            }, {
+                duration: 1000,
+                easing: 'swing',
+                step: function (now) {
+                    $(this).text(Math.ceil(now));
+                }
+            });
         });
 
-        $('#counter-2').animationCounter({
-            start: 0,
-            end: 0,
-            step: 218,
-            delay: 8
-        });
+        viewLastDocsList(lastDocs);
 
-        $('#counter-3').animationCounter({
-            start: 0,
-            end: 0,
-            step: 374,
-            delay: 88
-        });
     });
 
     $('#more-setting').on('click', function () {
@@ -794,6 +809,41 @@
         // $('#logo-center').hide();
         showLogoCenter = false;
     });
+
+    // рисует список посл. документов на гл.странице
+    function viewLastDocsList(content) {
+        $('#last-docs').empty();
+
+        let divParent = $('<div>', {class: 'collection'});
+
+        content.forEach(function (doc) {
+            let div = $('<div>', {class: 'collection-item avatar', style: 'background-color: rgba(228, 229, 231, 0.7);;'});
+            div.append($('<input>', {class: 'practice-code', value: doc.code, hidden: true}));
+
+            let span = $('<span>', {});
+
+            span.append($('<a>', {class: 'title', href: 'docPage?id=' + doc.id, text: createTitle(doc.name)}));
+
+            if (doc.idParent) {
+                span.append($('<span>', {text: ' ('}));
+                span.append($('<a>', {class: 'title', href: 'docPage?id=' + doc.idParent, text: doc.parentName}));
+                span.append($('<span>', {text: ')'}));
+            }
+
+            div.append(span);
+
+            div.append($('<p>', {class: 'pre-content', text: getPreContent(doc.content)}));
+            let a = $('<a>', {class: 'secondary-content'}).append($('<i>', {class: 'far fa-eye', value: doc.id}));
+            // a.on('click', function () {
+            //     setPreView(findByIdInContent($(this).parent().children('input').val(), content))
+            // });
+            // div.append(a);
+            divParent.append(div);
+        });
+
+        $('#last-docs').append(divParent);
+    }
+
 
 </script>
 </html>

@@ -157,12 +157,15 @@ i.far {
 .stat {
     display: flex;
     flex-direction: row;
-    justify-content: center;
     color: rgba(180,180,180,0.85);
-    height: 230px;
     margin-top: 20px;
 }
 
+.stat-block {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
 .stat-item {
     display: flex;
     flex-direction: column;
@@ -170,7 +173,8 @@ i.far {
     margin: 10px;
     padding: 10px;
     text-align: center;
-    width: 200px;
+    width: 300px;
+    height: 200px;
 }
 
 .stat-item-content {
@@ -179,6 +183,7 @@ i.far {
 
 .stat-item-content > h6 {
     font-weight: bold;
+    text-align: center;
 }
 
 .stat-item-footer {
@@ -189,4 +194,11 @@ i.far {
 
 #top-tag-list {
     background-color: #f8f8f8;
+}
+
+.last-docs {
+    flex-grow: 3;
+    background-color: #e4e5e7b3;
+    margin: 10px;
+    padding: 10px;
 }

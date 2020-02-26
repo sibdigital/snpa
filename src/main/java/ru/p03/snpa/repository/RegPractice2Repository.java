@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import ru.p03.snpa.entity.RegPractice;
 
 import java.util.Date;
+import java.util.Map;
 
 public interface RegPractice2Repository extends CrudRepository<RegPractice, Long> {
 
@@ -57,6 +58,21 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
 
     @Query(value = GET_NUMBERS_BY_DOC_TYPE_IN, nativeQuery = true)
     Iterable<String> findAllNumbersByDocTypeIn(String[] docTypes);
+
+    @Query(value = GET_STATS_BY_DOC_TYPES, nativeQuery = true)
+    Iterable<Map<String, Integer>> findStatsByDocTypes();
+
+    Iterable<RegPractice> findTop4ByOrderByDateOfDocumentDesc();
+
+
+    String GET_STATS_BY_DOC_TYPES = "SELECT 'counter1' as name, COUNT(*) as counter FROM main.reg_practice WHERE ((doc_type = 'z') OR (doc_type = 'n')) AND code_parent IS NULL\n" +
+            " union\n" +
+            " SELECT 'counter2' as name, COUNT(*) as counter FROM main.reg_practice WHERE ((doc_type = 'z') OR (doc_type = 'n')) AND NOT code_parent IS NULL\n" +
+            " union\n" +
+            " SELECT 'counter3' as name, COUNT(*) as counter FROM main.reg_practice WHERE doc_type = 'p'\n" +
+            " union\n" +
+            " SELECT 'counter4' as name, COUNT(*) as counter FROM main.reg_practice WHERE doc_type = 'f'\n" +
+            " order by 1";
 
     String GET_NUMBERS_BY_DOC_TYPE_IN = "SELECT p.number\n" +
             "        FROM main.reg_practice p\n" +
