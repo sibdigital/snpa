@@ -12,6 +12,8 @@ public interface ClsPaymentTypeRepository extends CrudRepository<ClsPaymentType,
 
     Iterable<ClsPaymentType> findAllByCodeIn(String[] code);
 
+    Optional<ClsPaymentType> findByCode(String code);
+
     Iterable<ClsPaymentType> findAllByParentCode(String parentCode);
 
     Optional<ClsPaymentType> findFirstByParentCode(String parentCode);

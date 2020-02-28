@@ -4,9 +4,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import ru.p03.snpa.entity.RegPractice;
 
+import javax.swing.text.html.Option;
 import java.util.Date;
+import java.util.Optional;
 
 public interface RegPractice2Repository extends CrudRepository<RegPractice, Long> {
+
+    Optional<RegPractice> findByCode(String code);
 
     @Query(value = FULL_TEXT_SEARCH_ORDER_BY_DATE, nativeQuery = true)
     Iterable<RegPractice> findAllByFullTextSearchOrderByDateOfDocument(String search);
