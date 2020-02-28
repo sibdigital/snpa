@@ -2,7 +2,7 @@
 -- Отвены вносятся в reg_practice с типом q
 -- по аналогии с другими документами
 -- заполняется вопросами из табличной части Вопросы справочника Ответы
-CREATE OR REPLACE TABLE main.cls_question (
+CREATE TABLE main.cls_question (
     id bigint NOT NULL, --автогенерируемое
     content text, -- справочник Ответы ТЧ вопросы атрибут Текст
     practice_code character varying(32) NOT NULL -- справочник Ответы атрибут Код

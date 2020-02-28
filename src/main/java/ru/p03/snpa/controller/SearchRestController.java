@@ -340,7 +340,9 @@ public class SearchRestController {
             Optional<RegSearchStatistic> regSearchStatisticOptional = regSearchStatisticRepository.findById(searchForm.getSearchId());
             if (regSearchStatisticOptional.isPresent()) {
                 regSearchStatisticOptional.get().setStatus(searchForm.getStatus());
-                regSearchStatisticOptional.get().setComment(searchForm.getComment());
+                if (searchForm.getComment() != null && !searchForm.getComment().isEmpty()) {
+                    regSearchStatisticOptional.get().setComment(searchForm.getComment());
+                }
                 regSearchStatisticRepository.save(regSearchStatisticOptional.get());
             }
             return "OK";
@@ -789,48 +791,63 @@ public class SearchRestController {
         return new ArrayList<>();
     }
 
-    private Iterable<RegPractice> filterSearchTypeZBySearchRelevanceAndDateOfDocument(SearchForm searchForm) throws ParseException {
-        Date dateOfDocumentStart;
-        Date dateOfDocumentEnd;
+    private Iterable<RegPractice> filterSearchTypeZBySearchRelevanceAndDateOfDocument(SearchForm searchForm){
+
+        Date dateOfDocumentStart = DateUtils.MIN_DATE_PLUS_DAY;
+        try{
+            dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+        }catch (ParseException ex){
+            log.error(ex.toString());
+        }
+
+        Date dateOfDocumentEnd = DateUtils.MAX_DATE_MINUS_DAY;
+        try{
+            dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+        }catch (ParseException ex){
+            log.error(ex.toString());
+        }
 
         if (searchForm.getSearchRelevance().equals("ALL")) {
-            if ((!searchForm.getSearchDateOfDocumentStart().equals("")) && (!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
-                dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
-                return regPracticeRepository.findAllByDateOfDocumentAfterAndDateOfDocumentBeforeAndDocTypeOrderByDateOfDocumentDesc(dateOfDocumentStart, dateOfDocumentEnd, "z");
-            }
-
-            if ((!searchForm.getSearchDateOfDocumentStart().equals(""))) {
-                dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
-                return regPracticeRepository.findAllByDateOfDocumentAfterAndDocTypeOrderByDateOfDocumentDesc(dateOfDocumentStart, "z");
-            }
-
-            if ((!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
-                return regPracticeRepository.findAllByDateOfDocumentBeforeAndDocTypeOrderByDateOfDocumentDesc(dateOfDocumentEnd, "z");
-            }
-
-            // если dateOfDocument никакая не указана в поисковом запросе
-            if ((searchForm.getSearchDateOfDocumentStart().equals("")) && (searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                return regPracticeRepository.findAllByDocTypeOrderByDateOfDocumentDesc("z");
-            }
+            return regPracticeRepository.findAllByDateOfDocumentAfterAndDateOfDocumentBeforeAndDocTypeOrderByDateOfDocumentDesc(
+                    dateOfDocumentStart, dateOfDocumentEnd, "z"
+            );
+//            if ((!searchForm.getSearchDateOfDocumentStart().equals("")) && (!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
+//                //dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+//                //dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
+//                return regPracticeRepository.findAllByDateOfDocumentAfterAndDateOfDocumentBeforeAndDocTypeOrderByDateOfDocumentDesc(dateOfDocumentStart, dateOfDocumentEnd, "z");
+//            }
+//
+//            if ((!searchForm.getSearchDateOfDocumentStart().equals(""))) {
+//                //dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+//                return regPracticeRepository.findAllByDateOfDocumentAfterAndDocTypeOrderByDateOfDocumentDesc(dateOfDocumentStart, "z");
+//            }
+//
+//            if ((!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
+//                //dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
+//                return regPracticeRepository.findAllByDateOfDocumentBeforeAndDocTypeOrderByDateOfDocumentDesc(dateOfDocumentEnd, "z");
+//            }
+//
+//            // если dateOfDocument никакая не указана в поисковом запросе
+//            if ((searchForm.getSearchDateOfDocumentStart().equals("")) && (searchForm.getSearchDateOfDocumentEnd().equals(""))) {
+//                return regPracticeRepository.findAllByDocTypeOrderByDateOfDocumentDesc("z");
+//            }
         }
 
         //Действующие
         if (searchForm.getSearchRelevance().equals("VALID")) {
             if ((!searchForm.getSearchDateOfDocumentStart().equals("")) && (!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
-                dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
+                //dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+                //dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
                 return regPracticeRepository.findAllValidAndDateOfDocumentAfterAndDateOfDocumentBeforeAndDocTypeZ(new Date(),dateOfDocumentStart, dateOfDocumentEnd);
             }
 
             if ((!searchForm.getSearchDateOfDocumentStart().equals(""))) {
-                dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+                //dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
                 return regPracticeRepository.findAllValidAndDateOfDocumentAfterAndDocTypeZ(new Date(), dateOfDocumentStart);
             }
 
             if ((!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
+                //dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
                 return regPracticeRepository.findAllValidAndDateOfDocumentBeforeAndDocTypeZ(new Date(), dateOfDocumentEnd);
             }
 
@@ -845,18 +862,18 @@ public class SearchRestController {
         if (searchForm.getSearchRelevance().equals("EXPIRED")) {
 
             if ((!searchForm.getSearchDateOfDocumentStart().equals("")) && (!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
-                dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
+                //dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+                //dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
                 return regPracticeRepository.findAllExpiredAndDateOfDocumentAfterAndDateOfDocumentBeforeAndDocTypeZ(new Date(), dateOfDocumentStart, dateOfDocumentEnd);
             }
 
             if ((!searchForm.getSearchDateOfDocumentStart().equals(""))) {
-                dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+                //dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
                 return regPracticeRepository.findAllExpiredAndDateOfDocumentAfterAndDocTypeZ(new Date(), dateOfDocumentStart);
             }
 
             if ((!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
+                //dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
                 return regPracticeRepository.findAllExpiredAndDateOfDocumentBeforeAndDocTypeZ(new Date(), dateOfDocumentEnd);
             }
 
@@ -869,18 +886,18 @@ public class SearchRestController {
         //Не вступившие в силу
         if (searchForm.getSearchRelevance().equals("INVALID")) {
             if ((!searchForm.getSearchDateOfDocumentStart().equals("")) && (!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
-                dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
+                //dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+                //dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
                 return regPracticeRepository.findAllInvalidAndDateOfDocumentAfterAndDateOfDocumentBeforeAndDocTypeZ(new Date(),dateOfDocumentStart, dateOfDocumentEnd);
             }
 
             if ((!searchForm.getSearchDateOfDocumentStart().equals(""))) {
-                dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
+                //dateOfDocumentStart = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart());
                 return regPracticeRepository.findAllInvalidAndDateOfDocumentAfterAndDocTypeZ(new Date(), dateOfDocumentStart);
             }
 
             if ((!searchForm.getSearchDateOfDocumentEnd().equals(""))) {
-                dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
+                //dateOfDocumentEnd = DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd());
                 return regPracticeRepository.findAllInvalidAndDateOfDocumentBeforeAndDocTypeZ(new Date(), dateOfDocumentEnd);
             }
 

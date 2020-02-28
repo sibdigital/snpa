@@ -27,7 +27,8 @@
                 <button onclick="window.history.back()" class="btn"><i class="fas fa-arrow-left"></i></button>
                 <h6 class="title" th:if="${idParent}">
                     Родительский документ:
-                    <a th:href="@{'docPage?id='+${idParent}}" th:text="${regPractice.parentName}"></a>
+                    <a th:if="${searchId}" th:href="@{'docPage?id='+${idParent}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="${regPractice.parentName}"></a>
+                    <a th:unless="${searchId}" th:href="@{'docPage?id='+${idParent}+'&previous='+${code}}" th:text="${regPractice.parentName}"></a>
                     <span class="bad-message" th:if="${expiredDate}" th:text="' Утратил силу: ' + ${#dates.format(expiredDate, 'dd-MM-yyyy')}"></span>
                 </h6>
                 <h6 class="title" th:if="${regPractice.docType} == 'p'">Письмо</h6>
@@ -68,7 +69,8 @@
                     <li th:each="regPracticeChild, stat : ${regPracticeChildrenIterable}">
                         <div class="collapsible-header" th:text="${regPracticeChild.name}"></div>
                         <div class="collapsible-body">
-                            <a th:href="@{'docPage?id='+${regPracticeChild.id}}" th:text="'Открыть документ № ' + ${regPracticeChild.number}"></a>
+                            <a th:if="${searchId}" th:href="@{'docPage?id='+${regPracticeChild.id}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="'Открыть документ № ' + ${regPracticeChild.number}"></a>
+                            <a th:unless="${searchId}" th:href="@{'docPage?id='+${regPracticeChild.id}+'&previous='+${code}}" th:text="'Открыть документ № ' + ${regPracticeChild.number}"></a>
                             <br>
                             <pre th:text="${regPracticeChild.content}"></pre>
                         </div>
@@ -83,7 +85,8 @@
                         <span th:text="${stat.count} + '. ' "></span>
                         <span th:text="'Данный документ ' "></span>
                         <span th:text="${relatedDocument.type} + ': ' "></span>
-                        <a th:href="@{'docPage?id='+ ${relatedDocument.regPractice.id}}" th:text="${relatedDocument.regPractice.name}"></a>
+                        <a th:if="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
+                        <a th:unless="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
                     </li>
                 </ul>
             </div>
@@ -93,11 +96,25 @@
                 <ul class="collection">
                     <li class="collection-item" th:each="relatedDocument, stat : ${relatedDocumentList21}">
                         <span th:text="${stat.count} + '. ' "></span>
-                        <a th:href="@{'docPage?id='+ ${relatedDocument.regPractice.id}}" th:text="${relatedDocument.regPractice.name}"></a>
+                        <a th:if="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
+                        <a th:unless="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
                         <span th:text="${relatedDocument.type} + ': ' "></span>
                         <span th:text="'Данный документ ' "></span>
                     </li>
                 </ul>
+            </div>
+        </div>
+        <div>
+            <input id="docPageId" type="hidden" th:value="${id}"/>
+            <input id="ratingId" type="hidden" th:value="${ratingId}"/>
+            <div class="input-field">
+                <textarea id="comment" class="materialize-textarea"></textarea>
+                <label for="comment">Комментарий</label>
+            </div>
+            <div class="row">
+                <a class="btn col s4 waves-effect waves-light" onclick="updateDocRating(1)">Документ актуален и помог</a>
+                <a class="btn col s4 waves-effect waves-light" onclick="updateDocRating(2)">Документ помог частично</a>
+                <a class="btn col s4 waves-effect waves-light" onclick="updateDocRating(3)">Документ не актуален/не помог</a>
             </div>
         </div>
     </div>
@@ -127,5 +144,36 @@
             }
         });
     });
+
+    function updateDocRating(status) {
+        let data = {
+            id: $('#docPageId').val(),
+            ratingId: $('#ratingId').val(),
+            status: status,
+            comment: $('#comment').val(),
+        }
+        fetch('updateDocRating', {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, cors, *same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrer: 'no-referrer', // no-referrer, *client
+            body: JSON.stringify(data), // тип данных в body должен соответвовать значению заголовка "Content-Type"
+        }).then(function(response) {
+            return response.text();
+        }).then(function (content) {
+            if (content === 'OK') {
+                M.toast({html: 'Комментарий сохранен!', classes: 'rounded'});
+            } else {
+                M.toast({html: 'Комментарий не сохранен!', classes: 'rounded'});
+            }
+        }).catch(function (reason) {
+            console.log(reason);
+        });
+    }
 </script>
 </html>
