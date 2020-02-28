@@ -242,6 +242,7 @@
     const A_COLOR = "#00852a";
     const P_COLOR = "#5e35b1";
     const L_COLOR = "#926400";
+    const Q_COLOR = "#dd41d6";
 
     $(document).ready(function() {
         //$('#setting').hide();
@@ -290,6 +291,7 @@
             { id: "A", parent: "#", text: "Действие", a_attr: {style: "color: " + A_COLOR} },
             { id: "P", parent: "#", text: "Вид выплаты", a_attr: {style: "color: " + P_COLOR} },
             { id: "L", parent: "#", text: "Жизненная ситуация", a_attr: {style: "color: " + L_COLOR} },
+            { id: "Q", parent: "#", text: "Вопросы и ответы", a_attr: {style: "color: " + Q_COLOR} },
         ];
         tagList.forEach(function (val, item) {
             if(val.code.toString().substring(0, 1) == "V") {
@@ -311,6 +313,10 @@
                     tItem.text = truncateTagText(tItem.text, '(Жизненная ситуация)');
                     tItem.a_attr = {style: "color: " + L_COLOR, title: tItem.text}
                     break;
+                case "Q":
+                    tItem.text = truncateTagText(tItem.text, '(Вопросы)');
+                    tItem.a_attr = {style: "color: " + Q_COLOR, title: tItem.text}
+                    break;
             }
 
             switch (val.parentCode) {
@@ -322,6 +328,9 @@
                     break;
                 case "L":
                     tItem.parent = "L";
+                    break;
+                case "Q":
+                    tItem.parent = "Q";
                     break;
                 default:
                     tItem.parent = val.parentCode;
