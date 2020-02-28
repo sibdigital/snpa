@@ -9,6 +9,8 @@ public class ResultForm {
     private String data;
     private Iterable<RegPractice> regPractice2Iterable;
 
+    private Long searchId;
+
     public boolean isSuccess() {
         return success;
     }
@@ -39,6 +41,14 @@ public class ResultForm {
 
     public void setRegPractice2Iterable(Iterable<RegPractice> regPractice2Iterable) {
         this.regPractice2Iterable = regPractice2Iterable;
+    }
+
+    public Long getSearchId() {
+        return searchId;
+    }
+
+    public void setSearchId(Long searchId) {
+        this.searchId = searchId;
     }
 
     @Override

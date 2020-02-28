@@ -16,10 +16,7 @@ import ru.p03.snpa.utils.ListUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static ru.p03.snpa.utils.ListUtils.*;
 
@@ -48,7 +45,7 @@ public class SearchRestController {
     @Autowired
     private RegPractice2Repository regPractice2Repository;
     @Autowired
-    private SearchStatisticRepository searchStatisticRepository;
+    private RegSearchStatisticRepository regSearchStatisticRepository;
     @Autowired
     private ClsAttributeValueRepository clsAttributeValueRepository;
 
@@ -164,12 +161,6 @@ public class SearchRestController {
                     &&(searchForm.getSearchText().equals("")))
             return resultForm;
 
-            try {
-                searchStatisticRepository.save(searchFormToSearchStatistic(searchForm));
-            } catch (Exception e){
-                log.error("saveStatistic Error: " + e.toString());
-            }
-
             // search start
             if (searchForm.getSearchTagList().length != 0) {
                 log.info(dateFormat.format(new Date()) + ": start filterByTagsAndSearchType");
@@ -202,8 +193,10 @@ public class SearchRestController {
                         else
                             resultForm.setRegPractice2Iterable(regPractice2Repository.findAllByFullTextSearchOrderByRelevance(searchForm.getSearchText()));
 
-                        resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
+                        long l = System.currentTimeMillis() - start;
+                        resultForm.setTime(String.valueOf(l));
                         log.info(dateFormat.format(new Date()) + ": end filterBySearchText");
+                        saveRegSearchStatistic(searchForm, resultForm);
                         return resultForm;
                     }
 
@@ -239,6 +232,7 @@ public class SearchRestController {
                         }
                         resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
                         log.info(dateFormat.format(new Date()) + ": end filterBySearchTextAndSearchType");
+                        saveRegSearchStatistic(searchForm, resultForm);
                         return resultForm;
                     }
 
@@ -274,6 +268,7 @@ public class SearchRestController {
                         }
                         resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
                         log.info(dateFormat.format(new Date()) + ": end filterBySearchTextAndSearchRelevance");
+                        saveRegSearchStatistic(searchForm, resultForm);
                         return resultForm;
                     }
                 }
@@ -308,11 +303,13 @@ public class SearchRestController {
 
                 resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
                 log.info(dateFormat.format(new Date()) + ": end filterBySearchTextCodeIn");
+                saveRegSearchStatistic(searchForm, resultForm);
                 return resultForm;
             }
 
             resultForm.setRegPractice2Iterable(regPracticeIterable);
             resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
+            saveRegSearchStatistic(searchForm, resultForm);
             return resultForm;
 
         } catch (Exception e) {
@@ -320,6 +317,36 @@ public class SearchRestController {
             resultForm.setData(e.toString());
             System.out.println(e.toString());
             return resultForm;
+        }
+    }
+
+    private void saveRegSearchStatistic(SearchForm searchForm, ResultForm resultForm) {
+        try {
+            RegSearchStatistic regSearchStatistic = searchFormToSearchStatistic(searchForm);
+            regSearchStatistic.setResults(ListUtils.listStringToMasString(getPracticeCodeFromRegPracticeIterable(resultForm.getRegPractice2Iterable())));
+            regSearchStatistic.setResultsCount(regSearchStatistic.getResults().length);
+            regSearchStatistic.setProceedTime(Long.valueOf(resultForm.getTime()));
+            regSearchStatisticRepository.save(regSearchStatistic);
+            //
+            resultForm.setSearchId(regSearchStatistic.getId());
+        } catch (Exception e){
+            log.error("saveRegSearchStatistic Error: " + e.toString());
+        }
+    }
+
+    @PostMapping("/updateSearchStatistic")
+    public String updateSearchStatistic(@RequestBody SearchForm searchForm) {
+        try {
+            Optional<RegSearchStatistic> regSearchStatisticOptional = regSearchStatisticRepository.findById(searchForm.getSearchId());
+            if (regSearchStatisticOptional.isPresent()) {
+                regSearchStatisticOptional.get().setStatus(searchForm.getStatus());
+                regSearchStatisticOptional.get().setComment(searchForm.getComment());
+                regSearchStatisticRepository.save(regSearchStatisticOptional.get());
+            }
+            return "OK";
+        } catch (Exception e) {
+            log.error("updateSearchStatistic Error: " + e.toString());
+            return "ERROR";
         }
     }
 
@@ -957,19 +984,19 @@ public class SearchRestController {
     }
 
 
-    private SearchStatistic searchFormToSearchStatistic(SearchForm searchForm) throws ParseException {
-        SearchStatistic searchStatistic = new SearchStatistic();
-        searchStatistic.setSearchDateTime(new Date());
-        searchStatistic.setSearchText(searchForm.getSearchText());
-        searchStatistic.setSearchType(searchForm.getSearchType());
-        searchStatistic.setSearchRelevance(searchForm.getSearchRelevance());
-        searchStatistic.setSearchSortType(searchForm.getSearchSortType());
+    private RegSearchStatistic searchFormToSearchStatistic(SearchForm searchForm) throws ParseException {
+        RegSearchStatistic regSearchStatistic = new RegSearchStatistic();
+        regSearchStatistic.setSearchDateTime(new Date());
+        regSearchStatistic.setSearchText(searchForm.getSearchText());
+        regSearchStatistic.setSearchType(searchForm.getSearchType());
+        regSearchStatistic.setSearchRelevance(searchForm.getSearchRelevance());
+        regSearchStatistic.setSearchSortType(searchForm.getSearchSortType());
 
         if (!searchForm.getSearchDateOfDocumentStart().equals(""))
-            searchStatistic.setSearchDateOfDocumentStart(DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart()));
+            regSearchStatistic.setSearchDateOfDocumentStart(DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentStart()));
 
         if (!searchForm.getSearchDateOfDocumentEnd().equals(""))
-            searchStatistic.setSearchDateOfDocumentEnd(DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd()));
+            regSearchStatistic.setSearchDateOfDocumentEnd(DateUtils.getDateFromString(searchForm.getSearchDateOfDocumentEnd()));
 
         List<String> lifeSituationList = new ArrayList<>();
         List<String> actionList = new ArrayList<>();
@@ -981,11 +1008,11 @@ public class SearchRestController {
             if (tagMas[i].charAt(0) == 'P') paymentTypeList.add(tagMas[i].substring(1));
         }
 
-        searchStatistic.setLifeSituationTags(ListUtils.listStringToMasString(lifeSituationList));
-        searchStatistic.setActionTags(ListUtils.listStringToMasString(actionList));
-        searchStatistic.setPaymentTypeTags(ListUtils.listStringToMasString(paymentTypeList));
+        regSearchStatistic.setLifeSituationTags(ListUtils.listStringToMasString(lifeSituationList));
+        regSearchStatistic.setActionTags(ListUtils.listStringToMasString(actionList));
+        regSearchStatistic.setPaymentTypeTags(ListUtils.listStringToMasString(paymentTypeList));
 
-        return searchStatistic;
+        return regSearchStatistic;
     }
 }
 
