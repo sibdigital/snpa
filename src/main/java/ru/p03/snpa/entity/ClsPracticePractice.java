@@ -26,6 +26,9 @@ public class ClsPracticePractice {
     @SerializedName("doc_type2")
     @Column(name = "DOC_TYPE2")
     private String docType2;
+    @SerializedName("condition")
+    @Column(name = "CONDITION")
+    private String condition;
 
     public String getDocType1() {
         return docType1;
@@ -75,6 +78,14 @@ public class ClsPracticePractice {
         this.type = type;
     }
 
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
     @Override
     public String toString() {
         return "ClsPracticePractice{" +
@@ -82,6 +93,7 @@ public class ClsPracticePractice {
                 ", practice1Code='" + practice1Code + '\'' +
                 ", practice2Code='" + practice2Code + '\'' +
                 ", type='" + type + '\'' +
+                ", condition='" + condition + '\'' +
                 '}';
     }
 }

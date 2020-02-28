@@ -31,4 +31,7 @@ public interface ServiceAPI {
     @GET("web_attribute_value/web_attribute_value")
     Call<AttributeValue> getAllAttributeValue();
 
+    @GET("webq/webq")
+    Call<Question> getAllQuestions();
+
 }
