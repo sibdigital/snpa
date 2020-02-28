@@ -5,10 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import ru.p03.snpa.entity.*;
 import ru.p03.snpa.entity.forms.RelatedDocument;
 import ru.p03.snpa.entity.forms.TagForm;
@@ -22,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,10 +42,17 @@ public class DocPageController {
     ClsPracticePracticeRepository clsPracticePracticeRepository;
     @Autowired
     ClsAttributeValueRepository clsAttributeValueRepository;
+    @Autowired
+    RegPracticeViewStatisticRepository regPracticeViewStatisticRepository;
+    @Autowired
+    RegPracticeRatingRepository regPracticeRatingRepository;
     public static final int BUFFER_SIZE = 4096;
 
     @GetMapping("/docPage")
-    public String docPage(HttpServletRequest request, @ModelAttribute("id") Long id) {
+    public String docPage(HttpServletRequest request,
+                          @ModelAttribute("id") Long id,
+                          @RequestParam(name = "searchId", required = false) Long searchId,
+                          @RequestParam(name = "previous", required = false) String previous) {
 
         Optional<RegPractice> regPracticeOptional = regPracticeRepository.findById(id);
         if (regPracticeOptional.isPresent()) {
@@ -74,6 +79,38 @@ public class DocPageController {
 
             request.setAttribute("regPractice", regPracticeOptional.get());
             request.setAttribute("tagFormList", getTagFormList(regPracticeOptional.get()));
+
+            request.setAttribute("id", regPracticeOptional.get().getId());
+            request.setAttribute("code", regPracticeOptional.get().getCode());
+            if (searchId != null) {
+                request.setAttribute("searchId", searchId);
+            }
+
+            // сохраняем факт просмотра
+            RegPracticeViewStatistic regPracticeViewStatistic = new RegPracticeViewStatistic();
+            regPracticeViewStatistic.setDateView(new Timestamp(System.currentTimeMillis()));
+            regPracticeViewStatistic.setIp(request.getRemoteAddr());
+            regPracticeViewStatistic.setRegPracticeCode(regPracticeOptional.get().getCode());
+            if (previous != null && !previous.isEmpty()) {
+                regPracticeViewStatistic.setPrevious(previous);
+            }
+            if (searchId != null) {
+                regPracticeViewStatistic.setIdSearchStatistic(searchId);
+            }
+            regPracticeViewStatisticRepository.save(regPracticeViewStatistic);
+
+            // сохраняем rating
+            RegPracticeRating regPracticeRating = new RegPracticeRating();
+            regPracticeRating.setDateView(new Timestamp(System.currentTimeMillis()));
+            regPracticeRating.setIp(request.getRemoteAddr());
+            regPracticeRating.setRegPracticeCode(regPracticeOptional.get().getCode());
+            regPracticeRating.setIdPracticeViewStatistic(regPracticeViewStatistic.getId());
+            if (searchId != null) {
+                regPracticeRating.setIdSearchStatistic(searchId);
+            }
+            regPracticeRatingRepository.save(regPracticeRating);
+
+            request.setAttribute("ratingId", regPracticeRating.getId());
         }
 
         return "doc-page";

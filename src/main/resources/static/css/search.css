@@ -143,21 +143,21 @@ i.far {
 #logo-center {
     width: 100%;
     text-align: center;
-    color: rgba(158,158,158,0.71);
+    color: rgba(80,80,80,0.90);
     font-size: 44px;
 }
 
 #logo-center-ver {
     width: 100%;
     text-align: center;
-    color: rgba(158,158,158,0.71);
+    color: rgba(80,80,80,0.90);
     font-size: 24px;
 }
 
 .stat {
     display: flex;
     flex-direction: row;
-    color: rgba(180,180,180,0.85);
+    color: rgba(80,80,80,0.90);
     margin-top: 20px;
 }
 
@@ -175,6 +175,10 @@ i.far {
     text-align: center;
     width: 300px;
     height: 200px;
+}
+
+.stat-item-content > h6 {
+    color: #8b1014;
 }
 
 .stat-item-content {
