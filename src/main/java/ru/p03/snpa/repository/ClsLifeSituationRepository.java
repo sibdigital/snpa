@@ -15,4 +15,5 @@ public interface ClsLifeSituationRepository extends CrudRepository<ClsLifeSituat
 
     Optional<ClsLifeSituation> findFirstByParentCode(String parentCode);
 
+    ClsLifeSituation findFirstByCode(String code);
 }

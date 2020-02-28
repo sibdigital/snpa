@@ -15,8 +15,12 @@ import ru.p03.snpa.entity.from1c.Practice;
 import ru.p03.snpa.repository.RegPracticeRepository;
 import ru.p03.snpa.services.ControllerAPI;
 import ru.p03.snpa.services.ServiceAPI;
+import ru.p03.snpa.utils.DateUtils;
 import ru.p03.snpa.utils.ListUtils;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -46,7 +50,9 @@ public class PracticeImport {
                 ListUtils<RegPractice> regPracticeListUtils = new ListUtils<>();
                 log.info("deleteAll - saveAll Start");
                 regPracticeRepository.deleteAll();
-                regPracticeRepository.saveAll(regPracticeListUtils.masToList(practice.getRegPractices()));
+
+                List<RegPractice> rpl =  this.processRegPractice(practice.getRegPractices());
+                regPracticeRepository.saveAll(rpl);
 
                 log.info("Insert idParent Start");
                 Iterable<RegPractice> regPracticeIterable = regPracticeRepository.findAll();
@@ -83,6 +89,16 @@ public class PracticeImport {
         }
     }
 
-
+    private List<RegPractice> processRegPractice(RegPractice[] arr){
+        Arrays.stream(arr).forEach(elem ->{
+            if (elem.getDateStart() == null){
+                elem.setDateStart(DateUtils.MIN_DATE);
+            }
+            if (elem.getDateEnd() == null){
+                elem.setDateEnd(DateUtils.MAX_DATE);
+            }
+        });
+        return Arrays.asList(arr);
+    }
 
 }
