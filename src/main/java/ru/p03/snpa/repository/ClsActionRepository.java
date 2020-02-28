@@ -17,4 +17,7 @@ public interface ClsActionRepository extends CrudRepository<ClsAction, Long> {
     Iterable<ClsAction> findAllByParentCode(String parentCode);
 
     Optional<ClsAction> findFirstByParentCode(String parentCode);
+
+    ClsAction findFirstByCode(String code);
+
 }

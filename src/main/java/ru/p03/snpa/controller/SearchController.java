@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import ru.p03.snpa.entity.ClsAction;
-import ru.p03.snpa.entity.ClsAttributeValue;
-import ru.p03.snpa.entity.ClsLifeSituation;
-import ru.p03.snpa.entity.ClsPaymentType;
+import ru.p03.snpa.entity.*;
 import ru.p03.snpa.entity.forms.SearchForm;
 import ru.p03.snpa.entity.forms.TagForm;
 import ru.p03.snpa.repository.*;
@@ -18,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Controller
 public class SearchController {
@@ -41,7 +40,10 @@ public class SearchController {
         request.setAttribute("searchForm", searchForm);
         request.setAttribute("tagList", getTagFormList());
         request.setAttribute("numbers", getNumbers());
-
+        if( request.getParameter("searchText") == null) {
+            request.setAttribute("statsCounter", getStatistics());
+            request.setAttribute("lastDocs", getLastDocs());
+        }
         return "search";
     }
 
@@ -130,4 +132,13 @@ public class SearchController {
         return tagForm;
     }
 
+    private List<Map<String, Integer>> getStatistics(){
+        Iterable<Map<String, Integer>> stats = regPractice2Repository.findStatsByDocTypes();
+        return StreamSupport.stream(stats.spliterator(), false).collect(Collectors.toList());
+    }
+
+    private List<RegPractice> getLastDocs(){
+        Iterable<RegPractice> lastDocs = regPractice2Repository.findTop4ByOrderByDateOfDocumentDesc();
+        return StreamSupport.stream(lastDocs.spliterator(), false).collect(Collectors.toList());
+    }
 }

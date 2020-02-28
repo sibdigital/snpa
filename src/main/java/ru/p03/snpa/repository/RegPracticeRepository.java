@@ -1,5 +1,6 @@
 package ru.p03.snpa.repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -8,6 +9,7 @@ import ru.p03.snpa.entity.RegPractice;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.Optional;
 
@@ -166,6 +168,12 @@ public interface RegPracticeRepository extends CrudRepository<RegPractice, Long>
 
     Iterable<RegPractice> findAllByCodeInOrderByDateOfDocumentDesc(String[] code);
 
-
-
+    // ------------------- ------------------------------
+    @Modifying
+    @Transactional
+    @Query(value = "update main.reg_practice SET ts_content = to_tsvector('russian', coalesce(content, ''))"
+            + ", ts_number = to_tsvector('russian', coalesce(number, ''))"
+            + ", ts_name = to_tsvector('russian', coalesce(name, ''))"
+            + ", ts_parent_name = to_tsvector('russian', coalesce(parent_name, '')) ", nativeQuery = true)
+    int updateTsColumns();
 }

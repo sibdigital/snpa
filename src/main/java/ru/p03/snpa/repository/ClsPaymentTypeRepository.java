@@ -18,4 +18,6 @@ public interface ClsPaymentTypeRepository extends CrudRepository<ClsPaymentType,
 
     Optional<ClsPaymentType> findFirstByParentCode(String parentCode);
 
+    ClsPaymentType findFirstByCode(String code);
+
 }

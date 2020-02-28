@@ -7,6 +7,7 @@ import ru.p03.snpa.entity.RegPractice;
 import javax.swing.text.html.Option;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Map;
 
 public interface RegPractice2Repository extends CrudRepository<RegPractice, Long> {
 
@@ -32,8 +33,6 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
 
     @Query(value = INVALID_FULL_TEXT_SEARCH_ORDER_BY_DATE, nativeQuery = true)
     Iterable<RegPractice> findAllInvalidByFullTextSearchOrderByDateOfDocument(String search, Date now);
-
-
 
     @Query(value = FULL_TEXT_SEARCH_ORDER_BY_RELEVANCE, nativeQuery = true)
     Iterable<RegPractice> findAllByFullTextSearchOrderByRelevance(String search);
@@ -62,6 +61,21 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
     @Query(value = GET_NUMBERS_BY_DOC_TYPE_IN, nativeQuery = true)
     Iterable<String> findAllNumbersByDocTypeIn(String[] docTypes);
 
+    @Query(value = GET_STATS_BY_DOC_TYPES, nativeQuery = true)
+    Iterable<Map<String, Integer>> findStatsByDocTypes();
+
+    Iterable<RegPractice> findTop4ByOrderByDateOfDocumentDesc();
+
+
+    String GET_STATS_BY_DOC_TYPES = "SELECT 'counter1' as name, COUNT(*) as counter FROM main.reg_practice WHERE ((doc_type = 'z') OR (doc_type = 'n')) AND code_parent IS NULL\n" +
+            " union\n" +
+            " SELECT 'counter2' as name, COUNT(*) as counter FROM main.reg_practice WHERE ((doc_type = 'z') OR (doc_type = 'n')) AND NOT code_parent IS NULL\n" +
+            " union\n" +
+            " SELECT 'counter3' as name, COUNT(*) as counter FROM main.reg_practice WHERE doc_type = 'p'\n" +
+            " union\n" +
+            " SELECT 'counter4' as name, COUNT(*) as counter FROM main.reg_practice WHERE doc_type = 'f'\n" +
+            " order by 1";
+
     String GET_NUMBERS_BY_DOC_TYPE_IN = "SELECT p.number\n" +
             "        FROM main.reg_practice p\n" +
             "        WHERE p.doc_type IN (?1)";
@@ -73,10 +87,10 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
             "               AND(p.date_start<?2 OR p.date_end=null)" +
             "               AND(p.date_start=null OR p.date_end=null) AND \n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY date_of_document DESC\n";
 
@@ -84,10 +98,10 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
             "        FROM main.reg_practice p\n" +
             "        WHERE p.date_end<?2 AND\n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY date_of_document DESC\n";
 
@@ -95,10 +109,10 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
             "        FROM main.reg_practice p\n" +
             "        WHERE p.date_start>?2 AND \n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY date_of_document DESC\n";
 
@@ -106,10 +120,10 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
             "        FROM main.reg_practice p\n" +
             "        WHERE \n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY date_of_document DESC\n";
 
@@ -117,10 +131,10 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
             "        FROM main.reg_practice p\n" +
             "        WHERE p.doc_type=?2 AND\n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY date_of_document DESC\n";
 
@@ -128,10 +142,10 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
             "        FROM main.reg_practice p\n" +
             "        WHERE p.doc_type IN (?2) AND\n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY date_of_document DESC\n";
 
@@ -139,10 +153,10 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
             "        FROM main.reg_practice p\n" +
             "        WHERE p.code IN (?2) AND\n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY date_of_document DESC\n";
 
@@ -152,8 +166,8 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
     String VALID_FULL_TEXT_SEARCH_ORDER_BY_RELEVANCE = "SELECT   " +
             "ts_rank(\n" +
             "        (\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.number, '')), 'A') ||\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.parent_name, '')), 'B')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B')\n" +
             "           ), plainto_tsquery('russian', ?1)\n" +
             "        ), * \n" +
             "        FROM main.reg_practice p\n" +
@@ -162,117 +176,114 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
             "               AND(p.date_start<?2 OR p.date_end=null)" +
             "               AND(p.date_start=null OR p.date_end=null) AND \n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY ts_rank DESC, date_of_document DESC\n";
 
     String EXPIRED_FULL_TEXT_SEARCH_ORDER_BY_RELEVANCE = "SELECT " +
             "ts_rank(\n" +
             "        (\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.number, '')), 'A') ||\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.parent_name, '')), 'B')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B')\n" +
             "           ), plainto_tsquery('russian', ?1)\n" +
             "        ), * \n" +
             "        FROM main.reg_practice p\n" +
             "        WHERE p.date_end<?2 AND\n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY ts_rank DESC, date_of_document DESC\n";
 
     String INVALID_FULL_TEXT_SEARCH_ORDER_BY_RELEVANCE = "SELECT " +
             "ts_rank(\n" +
             "        (\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.number, '')), 'A') ||\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.parent_name, '')), 'B')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B')\n" +
             "           ), plainto_tsquery('russian', ?1)\n" +
             "        ), * \n" +
             "        FROM main.reg_practice p\n" +
             "        WHERE p.date_start>?2 AND \n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY ts_rank DESC, date_of_document DESC\n";
 
     String FULL_TEXT_SEARCH_ORDER_BY_RELEVANCE = "SELECT \n" +
             "ts_rank(\n" +
             "        (\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.number, '')), 'A') ||\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.parent_name, '')), 'B')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B')\n" +
             "           ), plainto_tsquery('russian', ?1)\n" +
             "        ), * \n" +
             "        FROM main.reg_practice p\n" +
             "        WHERE \n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY ts_rank DESC, date_of_document DESC\n";
 
     String FULL_TEXT_SEARCH_WITH_DOC_TYPE_ORDER_BY_RELEVANCE = "SELECT \n" +
             "ts_rank(\n" +
             "        (\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.number, '')), 'A') ||\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.parent_name, '')), 'B')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B')\n" +
             "           ), plainto_tsquery('russian', ?1)\n" +
             "        ), * \n" +
             "        FROM main.reg_practice p\n" +
             "        WHERE p.doc_type=?2 AND\n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY ts_rank DESC, date_of_document DESC\n";
 
     String FULL_TEXT_SEARCH_WITH_DOC_TYPE_IN_ORDER_BY_RELEVANCE = "SELECT \n" +
             "ts_rank(\n" +
             "        (\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.number, '')), 'A') ||\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.parent_name, '')), 'B')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B')\n" +
             "           ), plainto_tsquery('russian', ?1)\n" +
             "        ), * \n" +
             "        FROM main.reg_practice p\n" +
             "        WHERE p.doc_type IN (?2) AND\n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY ts_rank DESC, date_of_document DESC\n";
 
     String FULL_TEXT_SEARCH_WITH_CODES_ORDER_BY_RELEVANCE = "SELECT \n" +
             "ts_rank(\n" +
             "        (\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.number, '')), 'A') ||\n" +
-            "           setweight(to_tsvector('russian', coalesce(p.parent_name, '')), 'B')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B')\n" +
             "           ), plainto_tsquery('russian', ?1)\n" +
             "        ), * \n" +
             "        FROM main.reg_practice p\n" +
             "        WHERE p.code IN (?2) AND\n" +
             "        (\n" +
-            "        setweight(to_tsvector('russian', p.number), 'A') ||\n" +
-            "        setweight(to_tsvector('russian', p.name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', p.parent_name), 'B') ||\n" +
-            "        setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')\n" +
+            "           setweight(coalesce(p.ts_number,''), 'A') ||\n" +
+            "           setweight(coalesce(p.ts_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_parent_name,''), 'B') ||\n" +
+            "           setweight(coalesce(p.ts_content,''), 'C')\n" +
             "        ) @@ plainto_tsquery('russian', ?1)\n" +
             "ORDER BY  ts_rank DESC, date_of_document DESC\n";
-
-
-
 
 // можно на кейсы переделать потом
 //    SELECT *
@@ -291,6 +302,4 @@ public interface RegPractice2Repository extends CrudRepository<RegPractice, Long
 //    setweight(to_tsvector('russian', coalesce(p.content, '')), 'C')
 //            ) @@ plainto_tsquery('russian', 'пенсия')
 //    ORDER BY date_of_document DESC
-
-
 }
