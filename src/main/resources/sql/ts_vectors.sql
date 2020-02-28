@@ -69,3 +69,17 @@ CREATE INDEX IF NOT EXISTS idx_fts_reg_practice_date_end ON main.reg_practice (d
 ;
 CREATE INDEX IF NOT EXISTS idx_fts_reg_practice_date_start_date_end ON main.reg_practice (date_start, date_end)
 
+CREATE TABLE main.cls_question (
+    id bigint NOT NULL, --автогенерируемое
+    content text, -- справочник Ответы ТЧ вопросы атрибут Текст
+    practice_code character varying(32) NOT NULL -- справочник Ответы атрибут Код
+);
+
+
+
+alter table main.cls_question add column parent_code varchar(32);
+
+alter table main.cls_question add column ts_content tsvector;
+
+CREATE INDEX IF NOT EXISTS idx_fts_cls_question_ts_content ON main.cls_question
+    USING gin(ts_content);
