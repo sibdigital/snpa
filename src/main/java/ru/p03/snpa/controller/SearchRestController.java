@@ -340,7 +340,9 @@ public class SearchRestController {
             Optional<RegSearchStatistic> regSearchStatisticOptional = regSearchStatisticRepository.findById(searchForm.getSearchId());
             if (regSearchStatisticOptional.isPresent()) {
                 regSearchStatisticOptional.get().setStatus(searchForm.getStatus());
-                regSearchStatisticOptional.get().setComment(searchForm.getComment());
+                if (searchForm.getComment() != null && !searchForm.getComment().isEmpty()) {
+                    regSearchStatisticOptional.get().setComment(searchForm.getComment());
+                }
                 regSearchStatisticRepository.save(regSearchStatisticOptional.get());
             }
             return "OK";
