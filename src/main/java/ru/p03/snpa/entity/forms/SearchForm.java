@@ -15,6 +15,10 @@ public class SearchForm {
     private String[] searchTagNameList;
     private String[] idPractices;
 
+    private Long searchId;
+    private Short status;
+    private String comment;
+
     public String[] getIdPractices() {
         return idPractices;
     }
@@ -93,6 +97,30 @@ public class SearchForm {
 
     public void setSearchTagList(String[] searchTagList) {
         this.searchTagList = searchTagList;
+    }
+
+    public Long getSearchId() {
+        return searchId;
+    }
+
+    public void setSearchId(Long searchId) {
+        this.searchId = searchId;
+    }
+
+    public Short getStatus() {
+        return status;
+    }
+
+    public void setStatus(Short status) {
+        this.status = status;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     @Override

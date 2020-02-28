@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.Date;
 
 @Entity
-@Table(name = "search_statistic", schema = "main")
-public class SearchStatistic {
+@Table(name = "reg_search_statistic", schema = "main")
+public class RegSearchStatistic {
 
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +28,14 @@ public class SearchStatistic {
     private String searchRelevance;
     @Column(name = "SEARCH_SORT_TYPE")
     private String searchSortType;
+    @Column(name = "RESULTS_COUNT")
+    private Integer resultsCount;
+    @Column(name = "PROCEED_TIME")
+    private Long proceedTime;
+    @Column(name = "STATUS")
+    private Short status;
+    @Column(name = "COMMENT")
+    private String comment;
 
     @Type(type = "ru.p03.snpa.entity.GenericArrayTags")
     @Column(name = "ACTION_TAGS")
@@ -38,6 +46,9 @@ public class SearchStatistic {
     @Type(type = "ru.p03.snpa.entity.GenericArrayTags")
     @Column(name = "PAYMENT_TYPE_TAGS")
     private String[] paymentTypeTags;
+    @Type(type = "ru.p03.snpa.entity.GenericArrayTags")
+    @Column(name = "RESULTS")
+    private String[] results;
 
     @Override
     public String toString() {
@@ -50,9 +61,14 @@ public class SearchStatistic {
                 ", searchDateOfDocumentEnd=" + searchDateOfDocumentEnd +
                 ", searchRelevance='" + searchRelevance + '\'' +
                 ", searchSortType='" + searchSortType + '\'' +
+                ", resultsCount='" + resultsCount + '\'' +
+                ", proceedTime='" + proceedTime + '\'' +
+                ", status='" + status + '\'' +
+                ", comment='" + comment + '\'' +
                 ", actionTags=" + Arrays.toString(actionTags) +
                 ", lifeSituationTags=" + Arrays.toString(lifeSituationTags) +
                 ", paymentTypeTags=" + Arrays.toString(paymentTypeTags) +
+                ", results=" + Arrays.toString(results) +
                 '}';
     }
 
@@ -120,6 +136,38 @@ public class SearchStatistic {
         this.searchSortType = searchSortType;
     }
 
+    public Integer getResultsCount() {
+        return resultsCount;
+    }
+
+    public void setResultsCount(Integer resultsCount) {
+        this.resultsCount = resultsCount;
+    }
+
+    public Long getProceedTime() {
+        return proceedTime;
+    }
+
+    public void setProceedTime(Long proceedTime) {
+        this.proceedTime = proceedTime;
+    }
+
+    public Short getStatus() {
+        return status;
+    }
+
+    public void setStatus(Short status) {
+        this.status = status;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
     public String[] getActionTags() {
         return actionTags;
     }
@@ -142,5 +190,13 @@ public class SearchStatistic {
 
     public void setPaymentTypeTags(String[] paymentTypeTags) {
         this.paymentTypeTags = paymentTypeTags;
+    }
+
+    public String[] getResults() {
+        return results;
+    }
+
+    public void setResults(String[] results) {
+        this.results = results;
     }
 }

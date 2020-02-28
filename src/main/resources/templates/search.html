@@ -101,6 +101,18 @@
                 <span id="query-info" class="helper-text" data-error="wrong" data-success="right" style="font-size: 16px; color: rgba(251, 8, 8, 0.85)"></span>
                 <div id="search-result"></div>
                 <div id="pagination-list"></div>
+                <div id="search-statistic" style="display: none">
+                    <input id="searchId" type="hidden"/>
+                    <div class="input-field">
+                        <textarea id="comment" class="materialize-textarea"></textarea>
+                        <label for="comment">Комментарий</label>
+                    </div>
+                    <div class="row">
+                        <a class="btn col s4 waves-effect waves-light" onclick="updateSearchStatistic(1)">Удовлетворяет</a>
+                        <a class="btn col s4 waves-effect waves-light" onclick="updateSearchStatistic(2)">Удовлетворяет частично</a>
+                        <a class="btn col s4 waves-effect waves-light" onclick="updateSearchStatistic(3)">Данные не найдены</a>
+                    </div>
+                </div>
             </div>
             <div class="input-field col s5 sticky">
                 <span class="helper-text" data-error="wrong" data-success="right"> </span>
@@ -392,6 +404,8 @@
 
             $('#query-info').text('Найдено: ' + content.regPractice2Iterable.length + ' результатов (' + content.time + ' мс)');
             createPageSearch(content.regPractice2Iterable, 0);
+            $('#searchId').val(content.searchId);
+            $('#search-statistic').show();
             getTopTags(content.regPractice2Iterable);
         }).catch(function (reason) {
             console.log(reason);
@@ -794,6 +808,30 @@
         // $('#logo-center').hide();
         showLogoCenter = false;
     });
+
+    function updateSearchStatistic(status) {
+        let data = {
+            searchId: $('#searchId').val(),
+            status: status,
+            comment: $('#comment').val(),
+        }
+        fetch('updateSearchStatistic', {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, cors, *same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrer: 'no-referrer', // no-referrer, *client
+            body: JSON.stringify(data), // тип данных в body должен соответвовать значению заголовка "Content-Type"
+        }).then(function(response) {
+            // console.log(response.text());
+        }).catch(function (reason) {
+            console.log(reason);
+        });
+    }
 
 </script>
 </html>
