@@ -14,10 +14,15 @@
     <link rel="stylesheet" href="css/fontawesome.min.css">
     <link rel="stylesheet" href="css/regular.min.css">
     <link rel="stylesheet" href="css/solid.min.css">
+    <link rel="stylesheet" href="js/webix/webix.css">
+    <link rel="stylesheet" href="js/webix/pivot/pivot.css">
 
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/materialize.min.js"></script>
     <script src="js/select2.min.js"></script>
+    <script src="js/webix/webix.js"></script>
+    <script src="js/webix/pivot/pivot.js"></script>
+    <script src="js/datatables.min.js"></script>
 
 </head>
 <body>
@@ -25,9 +30,130 @@
 
 <content id="pageContent">
 
+    <div class="col s12">
+        <div class="row">
+            <div class="col s10">
+                <form action="#" th:action="@{statistic}" th:object="${searchForm}" th:method="GET">
+                    <div class="row">
+                        <div class="input-field col s3">
+                            <input id="input-search-date-of-document-start" th:field="*{searchDateOfDocumentStart}" type="text" class="datepicker">
+                            <label for="input-search-date-of-document-start">Дата запроса С</label>
+                        </div>
+
+                        <div class="input-field col s3">
+                            <input id="input-search-date-of-document-end" th:field="*{searchDateOfDocumentEnd}" type="text" class="datepicker">
+                            <label for="input-search-date-of-document-end">Дата запроса ПО</label>
+                        </div>
+
+                        <div class="input-field col s1">
+                            <button id="input-button" class="btn"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col s2">
+                <a href="statisticPivot"><i class="fas fa-chart-area"></i>Сводная таблица</a>
+            </div>
+        </div>
+
+
+        <table id="myDatatable" class="display" style="width: 100%;">
+            <thead>
+            <tr>
+                <th>Дата запроса</th>
+                <th>Тип запроса</th>
+                <th>Текст запроса</th>
+                <th>Дата С</th>
+                <th>Дата ПО</th>
+                <th>Теги жизн.ситуации</th>
+                <th>Теги видов выплат</th>
+                <th>Теги действий</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item:${allStatList}">
+                    <td th:text="${item.searchDateTime}"></td>
+                    <td th:text="${item.searchType}"></td>
+                    <td th:text="${item.searchText}"></td>
+                    <td th:text="${item.searchDateOfDocumentStart}"></td>
+                    <td th:text="${item.searchDateOfDocumentEnd}"></td>
+                    <td>
+                        <ul th:each="arrItem : ${item.lifeSituationTags}">
+                            <li th:text="${arrItem}"></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul th:each="arrItem : ${item.paymentTypeTags}">
+                            <li th:text="${arrItem}"></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul th:each="arrItem : ${item.actionTags}">
+                            <li th:text="${arrItem}"></li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
 </content>
 
 <footer id="pageFooter" th:insert="~{partials/main :: footer}"></footer>
+
+<script>
+    $(document).ready(function () {
+        $('.datepicker').datepicker({
+            container: 'html',
+            firstDay: true,
+            format: 'dd-mm-yyyy',
+            selectMonths: true,
+            selectYears: true,
+            minDate: new Date(1000,1,1),
+            maxDate: new Date(3000,1,1),
+            showClearBtn: true,
+            i18n: {
+                months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+                monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                weekdays: ["Воскресенье","Понедельник", "Вторник", "Среда", "Чеверг", "Пятница", "Суббота"],
+                weekdaysShort: ["Вс","Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+                weekdaysAbbrev: ["В","П", "В", "С", "Ч", "П", "С"],
+                cancel: 'Отмена',
+                clear: 'Очистить',
+                done: 'Ок'
+            },
+        });
+
+        $('#myDatatable').DataTable(
+            {
+                "dom": "lfrtip",
+                "scrollY": "50vh",
+                "scrollCollapse": true,
+                "select": false,
+                "paging": false,
+                "autoWidth": true,
+                "language": {
+                    "lengthMenu": "Показывать _MENU_ ",
+                    "search": "Поиск:",
+                    "zeroRecords": "Ничего не найдено ",
+                    "info": "Показано с _START_ по _END_ из _TOTAL_ записей",
+                    "infoEmpty": "Показано с 0 по 0 из 0 записей",
+                    "infoFiltered": "(filtered from _MAX_ total records)",
+                    "paginate": {
+                        "first": "Первая",
+                        "last": "Посл.",
+                        "next": "След.",
+                        "previous": "Пред."
+                    },
+                },
+            }
+        );
+
+
+    });
+
+</script>
 
 </body>
 </html>

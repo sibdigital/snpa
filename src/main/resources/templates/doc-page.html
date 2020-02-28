@@ -58,7 +58,8 @@
         </div>
         <div class="row" th:if="${regPractice.content!=''}">
             <div class="input-field col s12">
-                <pre th:text="${regPractice.content}"></pre>
+                <!--<pre th:text="${regPractice.content}"></pre>-->
+                <div class="doc-content" th:text="${regPractice.content}"></div>
             </div>
         </div>
         <div class="row" th:if="${regPracticeChildrenIterable.size()!=0}">
@@ -110,6 +111,13 @@
     $(document).ready(function() {
         $('.collapsible').collapsible({
             "accordion": false
+        });
+
+
+        $('.doc-content').each(function(){
+            let $this = $(this);
+            let t = $this.text();
+            $this.html(t);
         });
     });
 </script>
