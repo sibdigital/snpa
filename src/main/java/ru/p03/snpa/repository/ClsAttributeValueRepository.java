@@ -19,4 +19,5 @@ public interface ClsAttributeValueRepository extends CrudRepository<ClsAttribute
 
     Iterable<ClsAttributeValue> findAllByCodeIn(String[] code);
 
+    ClsAttributeValue findFirstByCode(String code);
 }

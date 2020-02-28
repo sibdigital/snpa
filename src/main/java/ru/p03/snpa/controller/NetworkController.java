@@ -70,20 +70,20 @@ public class NetworkController {
 //                value = 4
                 switch (element.getAttributeType()){
                     case 1:
-                        Optional<ClsPaymentType> attributeTypeP = clsPaymentTypeRepository.findByCode(element.getCodeAttribute());
-                        attributeTypeP.ifPresent(attribute -> attributes.put(attribute.getName(), "Тип выплаты"));
+                        ClsPaymentType attributeTypeP = clsPaymentTypeRepository.findFirstByCode(element.getCodeAttribute());
+                        attributes.put(attributeTypeP.getName(), "Тип выплаты");
                         break;
                     case 2:
-                        Optional<ClsAction> attributeTypeA = clsActionRepository.findByCode(element.getCodeAttribute());
-                        attributeTypeA.ifPresent(attribute -> attributes.put(attribute.getName(), "Действие"));
+                        ClsAction attributeTypeA = clsActionRepository.findFirstByCode(element.getCodeAttribute());
+                        attributes.put(attributeTypeA.getName(), "Действие");
                         break;
                     case 3:
-                        Optional<ClsLifeSituation> attributeTypeL = clsLifeSituationRepository.findByCode(element.getCodeAttribute());
-                        attributeTypeL.ifPresent(attribute -> attributes.put(attribute.getName(), "Жизненная ситуация"));
+                        ClsLifeSituation attributeTypeL = clsLifeSituationRepository.findFirstByCode(element.getCodeAttribute());
+                        attributes.put(attributeTypeL.getName(), "Жизненная ситуация");
                         break;
                     case 4:
-                        Optional<ClsAttributeValue> attributeTypeV = clsAttributeValueRepository.findByCode(element.getCodeAttribute());
-                        attributeTypeV.ifPresent(attribute -> attributes.put(attribute.getName(), "Значение"));
+                        ClsAttributeValue attributeTypeV = clsAttributeValueRepository.findFirstByCode(element.getCodeAttribute());
+                        attributes.put(attributeTypeV.getName(), "Значение");
                         break;
                 }
 //                Optional<RegPractice> regPracticeParent = regPractice2Repository.findByCode(code);
