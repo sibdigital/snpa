@@ -78,18 +78,18 @@
                     <td th:text="${item.searchDateOfDocumentStart}"></td>
                     <td th:text="${item.searchDateOfDocumentEnd}"></td>
                     <td>
-                        <ul th:each="arrItem : ${item.lifeSituationTags}">
-                            <li th:text="${arrItem}"></li>
+                        <ul th:each="arrItem : ${item.lifeSituationTagList}">
+                            <li th:text="${arrItem.name}"></li>
                         </ul>
                     </td>
                     <td>
-                        <ul th:each="arrItem : ${item.paymentTypeTags}">
-                            <li th:text="${arrItem}"></li>
+                        <ul th:each="arrItem : ${item.paymentTypeTagList}">
+                            <li th:text="${arrItem.name}"></li>
                         </ul>
                     </td>
                     <td>
-                        <ul th:each="arrItem : ${item.actionTags}">
-                            <li th:text="${arrItem}"></li>
+                        <ul th:each="arrItem : ${item.actionTagList}">
+                            <li th:text="${arrItem.name}"></li>
                         </ul>
                     </td>
                 </tr>

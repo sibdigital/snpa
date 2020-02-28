@@ -1,17 +1,13 @@
 package ru.p03.snpa.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import ru.p03.snpa.entity.RegPractice;
-import ru.p03.snpa.entity.SearchStatistic;
-import ru.p03.snpa.entity.forms.SearchForm;
-import ru.p03.snpa.repository.RegPracticeRepository;
-import ru.p03.snpa.repository.SearchStatisticRepository;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.p03.snpa.entity.RegSearchStatistic;
+import ru.p03.snpa.repository.RegSearchStatisticRepository;
 import ru.p03.snpa.utils.DateUtils;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -20,13 +16,13 @@ import java.util.stream.StreamSupport;
 public class StatisticRestController {
 
     @Autowired
-    private SearchStatisticRepository searchStatisticRepository;
+    private RegSearchStatisticRepository searchStatisticRepository;
 
     @GetMapping(value = "/statistic/search")
-    public List<SearchStatistic> getStat(@RequestParam("searchDateOfDocumentStart") String dateStart,
-                                         @RequestParam("searchDateOfDocumentEnd") String dateEnd){
+    public List<RegSearchStatistic> getStat(@RequestParam("searchDateOfDocumentStart") String dateStart,
+                                            @RequestParam("searchDateOfDocumentEnd") String dateEnd){
         try {
-            Iterable<SearchStatistic> list = searchStatisticRepository
+            Iterable<RegSearchStatistic> list = searchStatisticRepository
                 .findAllBySearchDateTimeAfterAndSearchDateTimeBeforeOrderBySearchDateTimeDesc(
                         DateUtils.getDateFromString(dateStart),
                         DateUtils.getDateFromString(dateEnd)

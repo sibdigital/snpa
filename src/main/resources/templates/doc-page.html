@@ -117,7 +117,14 @@
         $('.doc-content').each(function(){
             let $this = $(this);
             let t = $this.text();
-            $this.html(t);
+            let indBegin = t.indexOf('<body>') > 0 ? t.indexOf('<body>') + ('<body>').length : 0;
+            if(t.indexOf('</body>') > 0) {
+                t = t.substring(indBegin, t.indexOf('</body>'));
+                $this.html(t);
+            } else {
+                t = t.substring(indBegin);
+                $this.html(t);
+            }
         });
     });
 </script>
