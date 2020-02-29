@@ -82,6 +82,11 @@
     color: #926400;
     background-color: #fcf2cf;
 }
+
+.chip-question {
+    color: #dd41d6;
+    background-color: #fcf2cf;
+}
 .chips {
     border-bottom: 0;
 }

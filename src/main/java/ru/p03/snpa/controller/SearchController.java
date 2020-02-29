@@ -31,6 +31,8 @@ public class SearchController {
     private RegPractice2Repository regPractice2Repository;
     @Autowired
     private ClsAttributeValueRepository clsAttributeValueRepository;
+    @Autowired
+    private ClsQuestionRepository clsQuestionRepository;
 
     private static final Logger log = LoggerFactory.getLogger(SearchRestController.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -85,6 +87,7 @@ public class SearchController {
         Iterable<ClsLifeSituation> clsLifeSituationIterable = clsLifeSituationRepository.findAll();
         Iterable<ClsPaymentType> clsPaymentTypeIterable = clsPaymentTypeRepository.findAll();
         Iterable<ClsAttributeValue> clsAttributeValueIterable = clsAttributeValueRepository.findAll();
+        Iterable<ClsQuestion> clsQuestionIterable = clsQuestionRepository.findAll();
         for (ClsAction clsAction : clsActionIterable) {
             tagFormList.add(getTagForm(clsAction));
         }
@@ -96,6 +99,9 @@ public class SearchController {
         }
         for (ClsAttributeValue clsAttributeValue : clsAttributeValueIterable) {
             tagFormList.add(getTagForm(clsAttributeValue));
+        }
+        for (ClsQuestion clsQuestion : clsQuestionIterable) {
+            tagFormList.add(getTagForm(clsQuestion));
         }
 
         return tagFormList;
@@ -131,7 +137,14 @@ public class SearchController {
         tagForm.setType("V");
         return tagForm;
     }
-
+    private TagForm getTagForm(ClsQuestion clsQuestion){
+        TagForm tagForm = new TagForm();
+        tagForm.setName(clsQuestion.getContent() + " (Вопросы)");
+        tagForm.setCode("Q" + clsQuestion.getPracticeCode());
+        tagForm.setType("Q");
+        tagForm.setParentCode("Q" + clsQuestion.getParentCode());
+        return tagForm;
+    }
     private List<Map<String, Integer>> getStatistics(){
         Iterable<Map<String, Integer>> stats = regPractice2Repository.findStatsByDocTypes();
         return StreamSupport.stream(stats.spliterator(), false).collect(Collectors.toList());
