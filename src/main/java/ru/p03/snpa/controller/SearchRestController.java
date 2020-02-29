@@ -12,6 +12,7 @@ import ru.p03.snpa.entity.forms.TagForm;
 import ru.p03.snpa.repository.*;
 import ru.p03.snpa.utils.DateUtils;
 import ru.p03.snpa.utils.ListUtils;
+import ru.p03.snpa.word2vec.Word2VecModelInitializer;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
@@ -51,6 +52,10 @@ public class SearchRestController {
 
     @Autowired
     private TagFormRepository tagFormRepository;
+
+    @Autowired
+    private ClsQuestionRepository clsQuestionRepository;
+
 
     private static final Logger log = LoggerFactory.getLogger(SearchRestController.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -160,6 +165,20 @@ public class SearchRestController {
                     &&(searchForm.getSearchDateOfDocumentEnd().equals(""))
                     &&(searchForm.getSearchText().equals("")))
             return resultForm;
+
+            //предварительный поиск по вопросам и получение из подходящих вопросов тегов
+            if (!searchForm.getSearchText().equals("")) {
+                Iterable<ClsQuestion> clsQuestions = clsQuestionRepository.findAllByContentAndKeywords(searchForm.getSearchText());
+                final Collection<String> suggestionsForWord = Word2VecModelInitializer.getInitedWord2VecAdvisor()
+                        .getSuggestionsForWord("возраст", 3);
+                List<String> tagList = new ArrayList<String>();
+                tagList.addAll(Arrays.asList(searchForm.getSearchTagList()));
+               // clsQuestions.forEach(clsQuestion -> tagList.add('Q' + clsQuestion.getCode()));
+                if (clsQuestions.iterator().hasNext() ){
+                    tagList.add('Q' + clsQuestions.iterator().next().getCode());
+                    searchForm.setSearchTagList( tagList.toArray(new String[tagList.size()]) );
+                }
+            }
 
             // search start
             if (searchForm.getSearchTagList().length != 0) {
@@ -385,7 +404,9 @@ public class SearchRestController {
             if (codePracticeList.size() == 0)
                 return new ArrayList<>();
         }
-        return regPracticeRepository.findAllByCodeInOrderByDateOfDocumentDesc(listStringToMasString(distinctString(codePracticeList)));
+        String[] codes = listStringToMasString(distinctString(codePracticeList));
+        return regPracticeRepository.findAllByCodeInOrderByDateOfDocumentDesc(codes);
+        //return regPracticeRepository.findAllByCodeInOrderByDateOfDocumentDesc(listStringToMasString(distinctString(codePracticeList)));
     }
     
     private List<RegPractice> filterBySearchRelevance(Iterable<RegPractice> regPracticeIterable, String searchRelevance) {
@@ -973,6 +994,9 @@ public class SearchRestController {
                     = regPracticeAttributeRepository.findAllByAttributeTypeAndCodeAttributeIn(1, listStringToMasString(tagChildList));
             if (parentCodeTag.charAt(0) == 'V') regPracticeAttributeIterable
                     = regPracticeAttributeRepository.findAllByAttributeTypeAndCodeAttributeIn(4, listStringToMasString(tagChildList));
+            if (parentCodeTag.charAt(0) == 'Q') regPracticeAttributeIterable
+                    = regPracticeAttributeRepository.findAllByAttributeTypeAndCodeAttributeIn(5, listStringToMasString(tagChildList));
+
         }
 
         if (searchType.equals("P")) {

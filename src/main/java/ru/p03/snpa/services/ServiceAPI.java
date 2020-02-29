@@ -33,5 +33,4 @@ public interface ServiceAPI {
 
     @GET("webq/webq")
     Call<Question> getAllQuestions();
-
 }

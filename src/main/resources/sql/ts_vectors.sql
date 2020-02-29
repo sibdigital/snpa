@@ -16,7 +16,7 @@ alter table main.reg_practice add column ts_name tsvector
 alter table main.reg_practice add column ts_parent_name tsvector
 ;
 
-update main.reg_practice SET ts_content = to_tsvector('russian', coalesce(content, ''))
+update main.reg_practice SET ts_content = to_tsvector('russian', coalesce(strip_tags(content), ''))
 ;
 update main.reg_practice SET ts_number = to_tsvector('russian', coalesce(number, ''))
 ;
@@ -89,3 +89,6 @@ alter table main.cls_question alter column id set default nextval('main.cls_ques
 
 alter sequence main.cls_question_id_seq owned by main.cls_question.id;
 
+CREATE OR REPLACE FUNCTION strip_tags(TEXT) RETURNS TEXT AS $$
+SELECT regexp_replace(substr($1, strpos($1, '<body>')), '<[^>]*>', '', 'g');
+$$ LANGUAGE SQL;

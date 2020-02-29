@@ -57,6 +57,7 @@
                         <option value="P">Письма</option>
                         <option value="R">НПА</option>
                         <option value="Z">Федеральные законы</option>
+                        <option value="Q">Вопрос-ответ</option>
                     </select>
                     <label for="select-search-type">Тип поиска</label>
                 </div>
@@ -473,6 +474,7 @@
             div.append(span);
 
             div.append($('<p>', {class: 'pre-content', text: getPreContent(content[i].content)}));
+
             let a = $('<a>', {class: 'secondary-content'}).append($('<i>', {class: 'far fa-eye', value: content[i].id}));
             a.on('click', function () {
                 setPreView(findByIdInContent($(this).parent().children('input').val(), content))
@@ -543,8 +545,18 @@
 
     }
 
+    //strip text если это html
+    function stripHtml(html){
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    }
+
     // обрезает слишком длинный контент
     function getPreContent(content, limit = 100) {
+
+        //strip text если это html
+        content = stripHtml(content);
+
         let index = content.indexOf($('#input-search-text').val());
         let start = index - limit;
         let end = index + limit;
@@ -594,7 +606,8 @@
 
         getTags(content.code);
 
-        $('#preview-text').text(createPreViewContent(content.content));
+
+        $('#preview-text').text(createPreViewContent(stripHtml(content.content)));
 
         setActivePractice(content.code);
     }

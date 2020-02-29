@@ -171,7 +171,7 @@ public interface RegPracticeRepository extends CrudRepository<RegPractice, Long>
     // ------------------- ------------------------------
     @Modifying
     @Transactional
-    @Query(value = "update main.reg_practice SET ts_content = to_tsvector('russian', coalesce(content, ''))"
+    @Query(value = "update main.reg_practice SET ts_content = to_tsvector('russian', coalesce(strip_tags(content), ''))"
             + ", ts_number = to_tsvector('russian', coalesce(number, ''))"
             + ", ts_name = to_tsvector('russian', coalesce(name, ''))"
             + ", ts_parent_name = to_tsvector('russian', coalesce(parent_name, '')) ", nativeQuery = true)

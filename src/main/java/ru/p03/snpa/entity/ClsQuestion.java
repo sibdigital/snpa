@@ -24,6 +24,10 @@ public class ClsQuestion {
     @Column(name = "PARENT_CODE")
     private String parentCode;
 
+    @SerializedName("code")
+    @Column(name = "CODE")
+    private String code;
+
     @Override
     public String toString() {
         return "ClsQuestion{" +
@@ -64,5 +68,13 @@ public class ClsQuestion {
 
     public void setParentCode(String parentCode) {
         this.parentCode = parentCode;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }
