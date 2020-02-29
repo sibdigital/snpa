@@ -11,4 +11,7 @@ public interface ClsPracticePracticeRepository extends CrudRepository<ClsPractic
 
     Iterable<ClsPracticePractice> findAllByPractice2Code(String practice2Code);
 
+    Iterable<ClsPracticePractice> findAllByPractice1CodeContaining(String containing);
+
+    Iterable<ClsPracticePractice> findAllByPractice2CodeContaining(String containing);
 }

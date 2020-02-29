@@ -292,7 +292,7 @@
             { id: "A", parent: "#", text: "Действие", a_attr: {style: "color: " + A_COLOR} },
             { id: "P", parent: "#", text: "Вид выплаты", a_attr: {style: "color: " + P_COLOR} },
             { id: "L", parent: "#", text: "Жизненная ситуация", a_attr: {style: "color: " + L_COLOR} },
-            { id: "Q", parent: "#", text: "Вопросы и ответы", a_attr: {style: "color: " + Q_COLOR} },
+            { id: "Q", parent: "#", text: "Вопросы", a_attr: {style: "color: " + Q_COLOR} },
         ];
         tagList.forEach(function (val, item) {
             if(val.code.toString().substring(0, 1) == "V") {
@@ -388,6 +388,7 @@
         let A = $('#checkbox-action').prop('checked');
         let P = $('#checkbox-payment-type').prop('checked');
         let L = $('#checkbox-life-situation').prop('checked');
+        let Q = $('#checkbox-question').prop('checked');
 
         for (let i = 0; i < tagList.length; i++) {
 
@@ -398,6 +399,9 @@
                 $('#select-tag-list').append($('<option>', {value:tagList[i].code, text:tagList[i].name}));
 
             if ((tagList[i].type === 'L') && L)
+                $('#select-tag-list').append($('<option>', {value:tagList[i].code, text:tagList[i].name}));
+
+            if ((tagList[i].type === 'Q') && Q)
                 $('#select-tag-list').append($('<option>', {value:tagList[i].code, text:tagList[i].name}));
 
         }
@@ -636,6 +640,7 @@
                 if (content[i].type == 'L') $('#preview-tags').append($('<div>', {class: 'chip chip-life-situation', text: content[i].name}));
                 if (content[i].type == 'P') $('#preview-tags').append($('<div>', {class: 'chip chip-payment-type', text: content[i].name}));
                 if (content[i].type == 'V') $('#preview-tags').append($('<div>', {class: 'chip', text: content[i].name}));
+                if (content[i].type == 'Q') $('#preview-tags').append($('<div>', {class: 'chip chip-question', text: content[i].name}));
             }
         }).catch(function(reason) {
             console.log(reason);
@@ -742,6 +747,10 @@
             case "L":
                 div = $('<div>', {class: 'chip chip-life-situation', text: tag.name, value: tag.code});
                 break;
+            case "Q":
+                div = $('<div>', {class: 'chip chip-question', text: tag.name, value: tag.code});
+                break;
+
         }
         div.append($('<i>', {class: 'close fas fa-times'}));
         div.append($('<input>', {name: 'searchTagList', hidden:true, value: tag.code}));
@@ -817,6 +826,10 @@
             case "L":
                 div = $('<div>', {class: 'chip chip-life-situation', text: tag.name, value: tag.code});
                 break;
+            case "Q":
+                div = $('<div>', {class: 'chip chip-question', text: tag.name, value: tag.code});
+                break;
+
         }
         div.append($('<i>', {class: 'close fas fa-times'}));
         div.append($('<input>', {name: 'searchTagList', hidden:true, value: tag.code}));

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <base href="${pageContext.request.contextPath}">
+    <meta charset="UTF-8" http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8"/>
+    <title th:text="${regPractice}"></title>
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/regular.min.css">
+    <link rel="stylesheet" href="css/solid.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/network.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/materialize.min.js"></script>
+    <script src="js/network.js"></script>
+
+</head>
+<body>
+<header id="pageHeader" th:insert="~{partials/main :: header}"></header>
+<!--<div class="control">-->
+<!--    <div class="form&#45;&#45;field" >-->
+<!--        <div class="form&#45;&#45;field-container">-->
+<!--            <div class="form&#45;&#45;select-container" >-->
+<!--&lt;!&ndash;                <button class="button-load-data" style="position: relative;vertical-align: top;horiz-align: left;display: inline-block;margin-top: 10px">Обновить данные</button>&ndash;&gt;-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<content id="pageContent">
+    <div class="col s12">
+        <div class="row">
+            <div class="input-field col s12">
+                <div class="column">
+                    <button onclick="window.history.back()" class="btn"><i class="fas fa-arrow-left" style="display: inline-block"></i></button>
+                    <h5 class="title" th:text="${regPractice}" style="display: inline-block"></h5>
+                </div>
+                <div id="network"></div>
+            </div>
+        </div>
+    </div>
+</content>
+<footer id="pageFooter" th:insert="~{partials/main :: footer}"></footer>
+</body>
+<script th:inline="javascript">
+    // Place all the behaviors and hooks related to the matching controller here.
+    // All this logic will automatically be available in application.js.
+
+    // let nodes = new vis.DataSet();
+    //
+    // // create an array with edges
+    // let edges = new vis.DataSet();
+    $(document).ready(function () {
+        let regChildren = [[${regPracticeChildren}]];
+        let regParents = [[${regPracticeParents}]];
+        let regAttributes = [[${regPracticeAttributes}]];
+        let regMain = [[${regPractice}]];
+        let nodes = new vis.DataSet([
+            { id: 1, label: regMain, group: "First" }
+        ]);
+        // create an array with edges
+        let edges = new vis.DataSet([]);
+        let i = 2;
+        Object.keys(regParents).forEach(function (value) {
+            nodes.add({id: i, label: value, type: "Parent"});
+            edges.add({from: i++, to: 1, length: 300, arrows: {to: true}, label: regParents[value]});
+        });
+        Object.keys(regChildren).forEach(function (value) {
+            nodes.add({id: i, label: value, type: "Child"});
+            edges.add({from: 1, to: i++, length: 300, arrows: {to: true}, label: regChildren[value]});
+        });
+        Object.keys(regAttributes).forEach(function (value) {
+            nodes.add({id: i, label: value, type: "Attribute"});
+            edges.add({from: 1, to: i++, length: 300, arrows: {to: true}, label: regAttributes[value]});
+        });
+        let container = $('#network')[0];
+        let data = {
+            nodes: nodes,
+            edges: edges
+        };
+
+        let options = {
+            nodes: {
+                borderWidth: 1,
+                borderWidthSelected: 2,
+                shape: 'box',
+                labelHighlightBold: false,
+                widthConstraint:{
+                    minimum: 10,
+                    maximum: 200
+                },
+                heightConstraint:{
+                    minimum: 20,
+                    valign: 'middle'
+                }
+            },
+            groups: {
+                useDefaultGroups: false,
+                Parent: {},
+                Child: {},
+                Attribute: {},
+                First: {},
+            },
+            autoResize: true,
+            height: '100%',
+            width: '100%',
+            locale: 'ru'
+        };
+
+        let network = new vis.Network(container, data, options);
+
+        network = new vis.Network(container, data, options);
+        network.fit();
+    });
+</script>
+</html>
