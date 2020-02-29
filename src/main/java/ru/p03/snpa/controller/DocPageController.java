@@ -46,6 +46,9 @@ public class DocPageController {
     RegPracticeViewStatisticRepository regPracticeViewStatisticRepository;
     @Autowired
     RegPracticeRatingRepository regPracticeRatingRepository;
+    @Autowired
+    private ClsQuestionRepository clsQuestionRepository;
+
     public static final int BUFFER_SIZE = 4096;
 
     @GetMapping("/docPage")
@@ -182,17 +185,21 @@ public class DocPageController {
                 = regPracticeAttributeRepository.findAllByCodePracticeAndAttributeType(regPractice.getCode(), 1);
         Iterable<RegPracticeAttribute> regPracticeAttributeVIterable
                 = regPracticeAttributeRepository.findAllByCodePracticeAndAttributeType(regPractice.getCode(), 4);
+        Iterable<RegPracticeAttribute> regPracticeAttributeQIterable
+                = regPracticeAttributeRepository.findAllByCodePracticeAndAttributeType(regPractice.getCode(), 5);
+
 
         String[] attributeCodeA = getCodeAttributeFrom(regPracticeAttributeAIterable);
         String[] attributeCodeL = getCodeAttributeFrom(regPracticeAttributeLIterable);
         String[] attributeCodeP = getCodeAttributeFrom(regPracticeAttributePIterable);
         String[] attributeCodeV = getCodeAttributeFrom(regPracticeAttributeVIterable);
+        String[] attributeCodeQ = getCodeAttributeFrom(regPracticeAttributeQIterable);
 
         Iterable<ClsAction> clsActionIterable = clsActionRepository.findAllByCodeIn(attributeCodeA);
         Iterable<ClsLifeSituation> clsLifeSituationIterable = clsLifeSituationRepository.findAllByCodeIn(attributeCodeL);
         Iterable<ClsPaymentType> clsPaymentTypeIterable = clsPaymentTypeRepository.findAllByCodeIn(attributeCodeP);
         Iterable<ClsAttributeValue> clsAttributeValueIterable = clsAttributeValueRepository.findAllByCodeIn(attributeCodeV);
-
+        Iterable<ClsQuestion> clsQuestionIterable = clsQuestionRepository.findAllByCodeIn(attributeCodeQ);
         for (ClsAction clsAction : clsActionIterable) {
             tagFormList.add(getTagForm(clsAction));
         }
@@ -205,7 +212,9 @@ public class DocPageController {
         for (ClsAttributeValue clsAttributeValue : clsAttributeValueIterable) {
             tagFormList.add(getTagForm(clsAttributeValue));
         }
-
+        for (ClsQuestion clsQuestion : clsQuestionIterable) {
+            tagFormList.add(getTagForm(clsQuestion));
+        }
         return tagFormList;
     }
 
@@ -238,6 +247,14 @@ public class DocPageController {
         tagForm.setName(clsAttributeValue.getName());
         tagForm.setCode(clsAttributeValue.getCode());
         tagForm.setType("V");
+        return tagForm;
+    }
+
+    private TagForm getTagForm(ClsQuestion clsQuestion){
+        TagForm tagForm = new TagForm();
+        tagForm.setName(clsQuestion.getContent());
+        tagForm.setCode("Q" + clsQuestion.getPracticeCode());
+        tagForm.setType("Q");
         return tagForm;
     }
 

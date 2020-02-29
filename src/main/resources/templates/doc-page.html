@@ -55,6 +55,7 @@
                 <div th:if="${currentTagForm.type == 'P'}" class="chip chip-payment-type" th:each="currentTagForm, stat : ${tagFormList}" th:text="${currentTagForm.name}"></div>
                 <div th:if="${currentTagForm.type == 'L'}" class="chip chip-life-situation" th:each="currentTagForm, stat : ${tagFormList}" th:text="${currentTagForm.name}"></div>
                 <div th:if="${currentTagForm.type == 'V'}" class="chip" th:each="currentTagForm, stat : ${tagFormList}" th:text="${currentTagForm.name}"></div>
+                <div th:if="${currentTagForm.type == 'Q'}" class="chip chip-question" th:each="currentTagForm, stat : ${tagFormList}" th:text="${currentTagForm.name}"></div>
             </div>
         </div>
         <div class="row" th:if="${regPractice.content!=''}">
