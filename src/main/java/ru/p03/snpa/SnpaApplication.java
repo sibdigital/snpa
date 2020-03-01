@@ -14,7 +14,8 @@ import java.util.TimeZone;
 
 @SpringBootApplication
 @EnableScheduling
-public class SnpaApplication extends SpringBootServletInitializer {
+//public class SnpaApplication extends SpringBootServletInitializer {
+public class SnpaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SnpaApplication.class, args);
@@ -24,7 +25,7 @@ public class SnpaApplication extends SpringBootServletInitializer {
 	void setUTCTimeZone(){
 		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Irkutsk"));
 		System.out.println("Date in UTC: " + new Date().toString());
-		Word2VecModelInitializer.initialize("model.ser", repository);
+	//	Word2VecModelInitializer.initialize("model.ser", repository);
 	}
 
 	@Autowired

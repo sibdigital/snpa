@@ -169,8 +169,8 @@ public class SearchRestController {
             //предварительный поиск по вопросам и получение из подходящих вопросов тегов
             if (!searchForm.getSearchText().equals("")) {
                 Iterable<ClsQuestion> clsQuestions = clsQuestionRepository.findAllByContentAndKeywords(searchForm.getSearchText());
-                final Collection<String> suggestionsForWord = Word2VecModelInitializer.getInitedWord2VecAdvisor()
-                        .getSuggestionsForWord("возраст", 3);
+//                final Collection<String> suggestionsForWord = Word2VecModelInitializer.getInitedWord2VecAdvisor()
+//                        .getSuggestionsForWord("возраст", 3);
                 List<String> tagList = new ArrayList<String>();
                 tagList.addAll(Arrays.asList(searchForm.getSearchTagList()));
                // clsQuestions.forEach(clsQuestion -> tagList.add('Q' + clsQuestion.getCode()));

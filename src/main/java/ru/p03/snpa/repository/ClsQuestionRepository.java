@@ -22,6 +22,19 @@ public interface ClsQuestionRepository extends CrudRepository<ClsQuestion, Long>
 //    @Override
 //    <S extends ClsQuestion> S save(S s);
 
+    Iterable<ClsQuestion> findAll();
+
+    Iterable<ClsQuestion> findAllByCodeIn(String[] code);
+
+    Optional<ClsQuestion> findByCode(String code);
+
+    Iterable<ClsQuestion> findAllByParentCode(String parentCode);
+
+    Iterable<ClsQuestion> findAllByPracticeCode(String practiceCode);
+
+    Optional<ClsQuestion> findFirstByParentCode(String parentCode);
+
+    ClsQuestion findFirstByCode(String code);
 
     @Query(value = SEARCH_BY_CONTENT_AND_KEYWORD, nativeQuery = true)
     Iterable<ClsQuestion> findAllByContentAndKeywords(String search);
