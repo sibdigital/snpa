@@ -57,7 +57,7 @@
                         <option value="P">Письма</option>
                         <option value="R">НПА</option>
                         <option value="Z">Федеральные законы</option>
-                        <option value="Q">Вопрос-ответ</option>
+                        <option value="ALL">Вопрос-ответ</option>
                     </select>
                     <label for="select-search-type">Тип поиска</label>
                 </div>
@@ -134,7 +134,7 @@
     </div>
 
     <div id="logo-center" style="display: none;">Библиотека пенсионно-социальных знаний</div>
-    <div id="logo-center-ver" style="display: none;">версия от 10.01.2020</div>
+    <div id="logo-center-ver" style="display: none;">версия от 10.02.2020</div>
 
     <div class="stat">
         <div class="stat-block">
@@ -465,7 +465,7 @@
             let span = $('<span>', {});
             if (content[i].dateEnd !== null)
                 if (new Date(content[i].dateEnd) < Date.now())
-                    span = $('<span>', {class: 'bad-message', text: '(Утратило силу) '});
+                    span = $('<span>', {class: 'bad-message', text: '(Утратил силу) '});
 
             span.append($('<a>', {class: 'title', href: 'docPage?id='+content[i].id+'&searchId='+searchId, text: createTitle(content[i].name, 56)}));
 
@@ -604,7 +604,7 @@
             let dateEnd = new Date(content.dateEnd);
             if (dateEnd < Date.now()) {
                 $('#preview-date-end').show();
-                $('#preview-date-end').text('Утратило силу ' + getStringDate(content.dateEnd));
+                $('#preview-date-end').text('Утратил силу ' + getStringDate(content.dateEnd));
             }
         }
 

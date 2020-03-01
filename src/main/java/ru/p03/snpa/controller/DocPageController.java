@@ -130,6 +130,7 @@ public class DocPageController {
 
         // construct the complete absolute path of the file
         String fullPath = "\\\\10.3.30.151\\UsersOtd\\SNPA\\" + repName;
+        //String fullPath = "//10.3.30.151/UsersOtd/SNPA/" + repName;
         File downloadFile = new File(fullPath);
         FileInputStream inputStream = new FileInputStream(downloadFile);
         response.setContentLength((int) downloadFile.length());

@@ -35,7 +35,7 @@
                 <h5 class="title" th:text="${regPractice.name}"></h5>
                 <h6 class="title" th:if="${regPractice.number!=''}" th:text="'Номер: ' + ${regPractice.number}"></h6>
                 <h6 class="title" th:if="${regPractice.dateOfDocument}" th:text="'Дата: ' + ${#dates.format(regPractice.dateOfDocument, 'dd-MM-yyyy')}"></h6>
-<!--
+
                 <h6 class="title" th:text="'Список присоединённых файлов(' + ${regPractice.files.length} +'):'"></h6>
                 <div th:if="${regPractice.files.length != 0}">
                     <div th:each="file, stat : ${regPractice.files}">
@@ -43,7 +43,7 @@
                         <a th:text="${file}" th:href="@{'download?id=' + ${regPractice.id} + '&number=' + ${stat.count}}"></a>
                     </div>
                 </div>
--->
+
                 <div th:if="${regPractice.dateEnd}">
                     <span class="bad-message" th:if="${regPractice.dateEnd.before(#dates.createNow())}" th:text="' Утратил силу ' + ${#dates.format(regPractice.dateEnd, 'dd-MM-yyyy')}"></span>
                 </div>

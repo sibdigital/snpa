@@ -249,6 +249,14 @@ public class SearchRestController {
                                 resultForm.setRegPractice2Iterable(regPractice2Repository
                                         .findAllByFullTextSearchAndDocTypeOrderByRelevance(searchForm.getSearchText(), "z"));
                         }
+                        if (searchForm.getSearchType().equals("Q")) {
+                            if (searchForm.getSearchText().equals("sortByDate"))
+                                resultForm.setRegPractice2Iterable(regPractice2Repository
+                                        .findAllByFullTextSearchAndDocTypeOrderByDateOfDocument(searchForm.getSearchText(), "q"));
+                            else
+                                resultForm.setRegPractice2Iterable(regPractice2Repository
+                                        .findAllByFullTextSearchAndDocTypeOrderByRelevance(searchForm.getSearchText(), "q"));
+                        }
                         resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
                         log.info(dateFormat.format(new Date()) + ": end filterBySearchTextAndSearchType");
                         saveRegSearchStatistic(searchForm, resultForm);
