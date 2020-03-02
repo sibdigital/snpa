@@ -12,7 +12,6 @@ import ru.p03.snpa.entity.forms.TagForm;
 import ru.p03.snpa.repository.*;
 import ru.p03.snpa.utils.DateUtils;
 import ru.p03.snpa.utils.ListUtils;
-import ru.p03.snpa.word2vec.Word2VecModelInitializer;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
@@ -166,6 +165,10 @@ public class SearchRestController {
                     &&(searchForm.getSearchText().equals("")))
             return resultForm;
 
+
+            if (searchForm.getSearchType().equals("Q")){
+                searchForm.setSearchType("ALL");
+            }
             //предварительный поиск по вопросам и получение из подходящих вопросов тегов
             if (!searchForm.getSearchText().equals("")) {
                 Iterable<ClsQuestion> clsQuestions = clsQuestionRepository.findAllByContentAndKeywords(searchForm.getSearchText());

@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import ru.p03.snpa.repository.RegPractice2Repository;
-import ru.p03.snpa.word2vec.Word2VecModelInitializer;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
