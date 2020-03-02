@@ -6688,7 +6688,7 @@ textarea.materialize-textarea {
 
 .hiddendiv {
   visibility: hidden;
-  white-space: pre-wrap;
+  /*white-space: pre-wrap;*/
   word-wrap: break-word;
   overflow-wrap: break-word;
   /* future version of deprecated 'word-wrap' */
