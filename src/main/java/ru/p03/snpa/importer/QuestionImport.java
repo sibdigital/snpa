@@ -27,7 +27,7 @@ public class QuestionImport {
     private static final Logger log = LoggerFactory.getLogger(QuestionImport.class);
 
     @GetMapping("startImportQuestion")
-    //@Scheduled(cron = "${scheduler.cron.startImportQuestion}")
+    @Scheduled(cron = "${scheduler.cron.startImportQuestion}")
     public ResponseForm startImportQuestion() {
         ResponseForm responseForm = new ResponseForm();
         try {
