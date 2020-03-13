@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org/">
 <head>
-    <base href="${pageContext.request.contextPath}">
+
     <meta charset="UTF-8">
     <title th:text="${searchForm.searchText}"></title>
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
@@ -207,10 +207,10 @@
     <div class="navbar-fixed" style="height: 56px; line-height: 56px;">
         <nav>
             <div class="nav-wrapper" style="background-color: #fff; color: #323C47;">
-                <a href="search#!" style="font-size: 25px; color: #343434; padding-left: 10px;">Выберите теги</a>
+                <a href="#!" style="font-size: 25px; color: #343434; padding-left: 10px;">Выберите теги</a>
                 <ul class="right hide-on-med-and-down">
-                    <li><a href="search#!" data-type="select" class="modal-close waves-effect waves-green btn-flat">Выбрать</a></li>
-                    <li><a href="search#!" class="modal-close waves-effect waves-red btn-flat">Закрыть</a></li>
+                    <li><a href="#!" data-type="select" class="modal-close waves-effect waves-green btn-flat">Выбрать</a></li>
+                    <li><a href="#!" class="modal-close waves-effect waves-red btn-flat">Закрыть</a></li>
                 </ul>
             </div>
         </nav>
@@ -246,6 +246,8 @@
     const Q_COLOR = "#dd41d6";
 
     $(document).ready(function() {
+        console.log("ready () execute");
+
         //$('#setting').hide();
         $('#preview').hide();
         $('#select-tag-list').select2({width: "90%"});
@@ -285,6 +287,7 @@
 
         // если в сессии есть список результатов
         // после загрузки страницы выполняем запрос на поиск
+        console.log("search () execute");
         search(createQueryData())
 
         // Модальное окно выбора тега - подготовка списка тегов
@@ -429,13 +432,14 @@
         }).then(function(response) {
             return response.json();
         }).then(function(content) {
+            if (content && content.regPractice2Iterable) {
+                $('#query-info').text('Найдено: ' + content.regPractice2Iterable.length + ' результатов (' + content.time + ' мс)');
+                createPageSearch(content.regPractice2Iterable, content.searchId, 0);
+                $('#searchId').val(content.searchId);
+                getTopTags(content.regPractice2Iterable);
+                $('#search-statistic').show();
+            }
             $('#preloader').hide();
-
-            $('#query-info').text('Найдено: ' + content.regPractice2Iterable.length + ' результатов (' + content.time + ' мс)');
-            createPageSearch(content.regPractice2Iterable, content.searchId, 0);
-            $('#searchId').val(content.searchId);
-            $('#search-statistic').show();
-            getTopTags(content.regPractice2Iterable);
         }).catch(function (reason) {
             console.log(reason);
         });
@@ -673,6 +677,9 @@
         }).then(function(content) {
             // console.log(content);
             $('#top-tag-list').empty();
+            if (!content || !content.object){
+                return;
+            }
             $('#top-tag-list').append($('<p>', {text: "Рекомендуемые теги:"}));
             $('#top-tag-list').append($('<ul>', {id: "tops", class: "collection"}));
             for (let i = 0; i < content.object.length; i++) {
@@ -893,6 +900,9 @@
     function viewLastDocsList(content) {
         $('#last-docs').empty();
 
+        if (!content) {
+            return;
+        }
         let divParent = $('<div>', {class: 'collection'});
 
         content.forEach(function (doc) {
