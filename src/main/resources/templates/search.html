@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org/">
 <head>
-
+    <base href="${pageContext.request.contextPath}">
     <meta charset="UTF-8">
     <title th:text="${searchForm.searchText}"></title>
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
@@ -207,10 +207,10 @@
     <div class="navbar-fixed" style="height: 56px; line-height: 56px;">
         <nav>
             <div class="nav-wrapper" style="background-color: #fff; color: #323C47;">
-                <a href="#!" style="font-size: 25px; color: #343434; padding-left: 10px;">Выберите теги</a>
+                <a href="search#!" style="font-size: 25px; color: #343434; padding-left: 10px;">Выберите теги</a>
                 <ul class="right hide-on-med-and-down">
-                    <li><a href="#!" data-type="select" class="modal-close waves-effect waves-green btn-flat">Выбрать</a></li>
-                    <li><a href="#!" class="modal-close waves-effect waves-red btn-flat">Закрыть</a></li>
+                    <li><a href="search#!" data-type="select" class="modal-close waves-effect waves-green btn-flat">Выбрать</a></li>
+                    <li><a href="search#!" class="modal-close waves-effect waves-red btn-flat">Закрыть</a></li>
                 </ul>
             </div>
         </nav>
@@ -246,131 +246,128 @@
     const Q_COLOR = "#dd41d6";
 
     $(document).ready(function() {
-        console.log("ready () execute");
-
         //$('#setting').hide();
-        $('#preview').hide();
-        $('#select-tag-list').select2({width: "90%"});
-        $('#select-sort-type').formSelect();
-        $('#select-search-type').formSelect();
-        $('#select-search-relevance').formSelect();
-        $('input.autocomplete').autocomplete({
-            data: numbers,
-        });
-        // 47% 20% 1fr
-        $('.datepicker').datepicker({
-            container: 'html',
-            firstDay: true,
-            format: 'dd-mm-yyyy',
-            selectMonths: true,
-            selectYears: true,
-            minDate: new Date(1000,1,1),
-            maxDate: new Date(3000,1,1),
-            showClearBtn: true,
-            i18n: {
-                months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
-                monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-                weekdays: ["Воскресенье","Понедельник", "Вторник", "Среда", "Чеверг", "Пятница", "Суббота"],
-                weekdaysShort: ["Вс","Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
-                weekdaysAbbrev: ["В","П", "В", "С", "Ч", "П", "С"],
-                cancel: 'Отмена',
-                clear: 'Очистить',
-                done: 'Ок'
-            },
-        });
-
-        if (searchForm.searchTagList !== null) {
-            $('#setting').show();
-            for (let i = 0; i < searchForm.searchTagList.length; i++)
-                pushTag(findTagByCode(searchForm.searchTagList[i]));
-        }
-
-        // если в сессии есть список результатов
-        // после загрузки страницы выполняем запрос на поиск
-        console.log("search () execute");
-        search(createQueryData())
-
-        // Модальное окно выбора тега - подготовка списка тегов
-        let tagsTree = [
-            { id: "A", parent: "#", text: "Действие", a_attr: {style: "color: " + A_COLOR} },
-            { id: "P", parent: "#", text: "Вид выплаты", a_attr: {style: "color: " + P_COLOR} },
-            { id: "L", parent: "#", text: "Жизненная ситуация", a_attr: {style: "color: " + L_COLOR} },
-            { id: "Q", parent: "#", text: "Вопросы", a_attr: {style: "color: " + Q_COLOR} },
-        ];
-        tagList.forEach(function (val, item) {
-            if(val.code.toString().substring(0, 1) == "V") {
-                return
-            }
-            let tItem = {};
-            tItem.id = val.code;
-            tItem.text = val.name;
-            switch (val.code.toString().substring(0, 1)) {
-                case "A":
-                    tItem.text = truncateTagText(tItem.text, '(Действие)');
-                    tItem.a_attr = {style: "color: " + A_COLOR, title: tItem.text}
-                    break;
-                case "P":
-                    tItem.text = truncateTagText(tItem.text, '(Вид выплаты)');
-                    tItem.a_attr = {style: "color: " + P_COLOR, title: tItem.text}
-                    break;
-                case "L":
-                    tItem.text = truncateTagText(tItem.text, '(Жизненная ситуация)');
-                    tItem.a_attr = {style: "color: " + L_COLOR, title: tItem.text}
-                    break;
-                case "Q":
-                    tItem.text = truncateTagText(tItem.text, '(Вопросы)');
-                    tItem.a_attr = {style: "color: " + Q_COLOR, title: tItem.text}
-                    break;
-            }
-
-            switch (val.parentCode) {
-                case "A":
-                    tItem.parent = "A";
-                    break;
-                case "P":
-                    tItem.parent = "P";
-                    break;
-                case "L":
-                    tItem.parent = "L";
-                    break;
-                case "Q":
-                    tItem.parent = "Q";
-                    break;
-                default:
-                    tItem.parent = val.parentCode;
-            }
-            tagsTree.push(tItem);
-        });
-
-        _initTree(tagsTree);
-
-        $('.modal').modal();
-
-        if(showLogoCenter && searchForm.searchTagList == null && searchForm.searchText == null) {
-            $('.stat').show();
-            $('#logo-center').show();
-            $('#logo-center-ver').show();
-        } else {
-            $('.stat').hide();
-            $('#logo-center').hide();
-            $('#logo-center-ver').hide();
-        }
-
-        $('.counter').each(function () {
-            $(this).prop('Counter',0).animate({
-                Counter: $(this).text()
-            }, {
-                duration: 1000,
-                easing: 'swing',
-                step: function (now) {
-                    $(this).text(Math.ceil(now));
-                }
+            $('#preview').hide();
+            $('#select-tag-list').select2({width: "90%"});
+            $('#select-sort-type').formSelect();
+            $('#select-search-type').formSelect();
+            $('#select-search-relevance').formSelect();
+            $('input.autocomplete').autocomplete({
+                data: numbers,
             });
+            // 47% 20% 1fr
+            $('.datepicker').datepicker({
+                container: 'html',
+                firstDay: true,
+                format: 'dd-mm-yyyy',
+                selectMonths: true,
+                selectYears: true,
+                minDate: new Date(1000,1,1),
+                maxDate: new Date(3000,1,1),
+                showClearBtn: true,
+                i18n: {
+                    months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+                    monthsShort: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+                    weekdays: ["Воскресенье","Понедельник", "Вторник", "Среда", "Чеверг", "Пятница", "Суббота"],
+                    weekdaysShort: ["Вс","Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+                    weekdaysAbbrev: ["В","П", "В", "С", "Ч", "П", "С"],
+                    cancel: 'Отмена',
+                    clear: 'Очистить',
+                    done: 'Ок'
+                },
+            });
+
+            if (searchForm.searchTagList !== null) {
+                $('#setting').show();
+                for (let i = 0; i < searchForm.searchTagList.length; i++)
+                    pushTag(findTagByCode(searchForm.searchTagList[i]));
+            }
+
+            // если в сессии есть список результатов
+            // после загрузки страницы выполняем запрос на поиск
+            search(createQueryData())
+
+            // Модальное окно выбора тега - подготовка списка тегов
+            let tagsTree = [
+                { id: "A", parent: "#", text: "Действие", a_attr: {style: "color: " + A_COLOR} },
+                { id: "P", parent: "#", text: "Вид выплаты", a_attr: {style: "color: " + P_COLOR} },
+                { id: "L", parent: "#", text: "Жизненная ситуация", a_attr: {style: "color: " + L_COLOR} },
+                { id: "Q", parent: "#", text: "Вопросы", a_attr: {style: "color: " + Q_COLOR} },
+            ];
+            tagList.forEach(function (val, item) {
+                if(val.code.toString().substring(0, 1) == "V") {
+                    return
+                }
+                let tItem = {};
+                tItem.id = val.code;
+                tItem.text = val.name;
+                switch (val.code.toString().substring(0, 1)) {
+                    case "A":
+                        tItem.text = truncateTagText(tItem.text, '(Действие)');
+                        tItem.a_attr = {style: "color: " + A_COLOR, title: tItem.text}
+                        break;
+                    case "P":
+                        tItem.text = truncateTagText(tItem.text, '(Вид выплаты)');
+                        tItem.a_attr = {style: "color: " + P_COLOR, title: tItem.text}
+                        break;
+                    case "L":
+                        tItem.text = truncateTagText(tItem.text, '(Жизненная ситуация)');
+                        tItem.a_attr = {style: "color: " + L_COLOR, title: tItem.text}
+                        break;
+                    case "Q":
+                        tItem.text = truncateTagText(tItem.text, '(Вопросы)');
+                        tItem.a_attr = {style: "color: " + Q_COLOR, title: tItem.text}
+                        break;
+                }
+
+                switch (val.parentCode) {
+                    case "A":
+                        tItem.parent = "A";
+                        break;
+                    case "P":
+                        tItem.parent = "P";
+                        break;
+                    case "L":
+                        tItem.parent = "L";
+                        break;
+                    case "Q":
+                        tItem.parent = "Q";
+                        break;
+                    default:
+                        tItem.parent = val.parentCode;
+                }
+                tagsTree.push(tItem);
+            });
+
+            _initTree(tagsTree);
+
+            $('.modal').modal();
+
+            if(showLogoCenter && searchForm.searchTagList == null && searchForm.searchText == null) {
+                $('.stat').show();
+                $('#logo-center').show();
+                $('#logo-center-ver').show();
+            } else {
+                $('.stat').hide();
+                $('#logo-center').hide();
+                $('#logo-center-ver').hide();
+            }
+
+            $('.counter').each(function () {
+                $(this).prop('Counter',0).animate({
+                    Counter: $(this).text()
+                }, {
+                    duration: 1000,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
+            });
+
+            viewLastDocsList(lastDocs);
+
         });
-
-        viewLastDocsList(lastDocs);
-
-    });
 
     $('#more-setting').on('click', function () {
         $('#setting').toggle(300);
@@ -432,14 +429,13 @@
         }).then(function(response) {
             return response.json();
         }).then(function(content) {
-            if (content && content.regPractice2Iterable) {
-                $('#query-info').text('Найдено: ' + content.regPractice2Iterable.length + ' результатов (' + content.time + ' мс)');
-                createPageSearch(content.regPractice2Iterable, content.searchId, 0);
-                $('#searchId').val(content.searchId);
-                getTopTags(content.regPractice2Iterable);
-                $('#search-statistic').show();
-            }
             $('#preloader').hide();
+
+            $('#query-info').text('Найдено: ' + content.regPractice2Iterable.length + ' результатов (' + content.time + ' мс)');
+            createPageSearch(content.regPractice2Iterable, content.searchId, 0);
+            $('#searchId').val(content.searchId);
+            $('#search-statistic').show();
+            getTopTags(content.regPractice2Iterable);
         }).catch(function (reason) {
             console.log(reason);
         });
@@ -643,8 +639,9 @@
                 if (content[i].type == 'A') $('#preview-tags').append($('<div>', {class: 'chip chip-action', text: content[i].name}));
                 if (content[i].type == 'L') $('#preview-tags').append($('<div>', {class: 'chip chip-life-situation', text: content[i].name}));
                 if (content[i].type == 'P') $('#preview-tags').append($('<div>', {class: 'chip chip-payment-type', text: content[i].name}));
-                if (content[i].type == 'V') $('#preview-tags').append($('<div>', {class: 'chip', text: content[i].name}));
                 if (content[i].type == 'Q') $('#preview-tags').append($('<div>', {class: 'chip chip-question', text: content[i].name}));
+                if (content[i].type == 'V') $('#preview-tags').append($('<div>', {class: 'chip', text: content[i].name}));
+
             }
         }).catch(function(reason) {
             console.log(reason);
@@ -677,9 +674,6 @@
         }).then(function(content) {
             // console.log(content);
             $('#top-tag-list').empty();
-            if (!content || !content.object){
-                return;
-            }
             $('#top-tag-list').append($('<p>', {text: "Рекомендуемые теги:"}));
             $('#top-tag-list').append($('<ul>', {id: "tops", class: "collection"}));
             for (let i = 0; i < content.object.length; i++) {
@@ -900,9 +894,6 @@
     function viewLastDocsList(content) {
         $('#last-docs').empty();
 
-        if (!content) {
-            return;
-        }
         let divParent = $('<div>', {class: 'collection'});
 
         content.forEach(function (doc) {

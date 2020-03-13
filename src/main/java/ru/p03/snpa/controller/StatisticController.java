@@ -65,7 +65,7 @@ public class StatisticController {
                         }
                         item.setLifeSituationTagList(itemList);
                     }
-                    if(item.getPaymentTypeTags().length > 0) {
+                    if(item.getPaymentTypeTags() != null  && item.getPaymentTypeTags().length> 0) {
                         List<ClsPaymentType> itemList = new ArrayList<>();
                         for(int i=0; i<item.getPaymentTypeTags().length; i++){
                             itemList.add(clsPaymentTypeRepository.findFirstByCode(item.getPaymentTypeTags()[i]));
