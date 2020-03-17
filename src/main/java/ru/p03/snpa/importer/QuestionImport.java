@@ -3,6 +3,7 @@ package ru.p03.snpa.importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,8 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("importer")
 public class QuestionImport {
+    @Value("${url.import}")
+    private String URL_IMPORT;
 
     @Autowired
     ClsQuestionRepository clsQuestionRepository;
@@ -34,7 +37,7 @@ public class QuestionImport {
             responseForm.setSuccess(true);
             log.info("startImportQuestion Start");
 
-            ServiceAPI serviceAPI = ControllerAPI.getApi("http://10.3.30.152/skol/hs/");
+            ServiceAPI serviceAPI = ControllerAPI.getApi(URL_IMPORT);
             log.info("serviceAPI.getAllQuestion().execute() Start");
             Response<Question> questionResponse = serviceAPI.getAllQuestions().execute();
             log.info("serviceAPI.getAllQuestion().execute() End");

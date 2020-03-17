@@ -3,6 +3,7 @@ package ru.p03.snpa.importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,9 @@ import ru.p03.snpa.utils.ListUtils;
 @RestController
 @RequestMapping("importer")
 public class AttributeValueImport {
+    @Value("${url.import}")
+    private String URL_IMPORT;
+
     @Autowired
     ClsAttributeValueRepository clsAttributeValueRepository;
     private static final Logger log = LoggerFactory.getLogger(ActionImport.class);
@@ -34,7 +38,7 @@ public class AttributeValueImport {
             responseForm.setSuccess(true);
             log.info("startImportAttributeValue Start");
 
-            ServiceAPI serviceAPI = ControllerAPI.getApi("http://10.3.30.152/skol/hs/");
+            ServiceAPI serviceAPI = ControllerAPI.getApi(URL_IMPORT);
 
             Response<AttributeValue> AttributeValueResponse = serviceAPI.getAllAttributeValue().execute();
             if (AttributeValueResponse.isSuccessful()) {

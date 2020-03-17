@@ -3,6 +3,7 @@ package ru.p03.snpa.importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,8 @@ import java.util.Date;
 @RestController
 @RequestMapping("importer")
 public class ActionImport {
+    @Value("${url.import}")
+    private String URL_IMPORT;
 
     @Autowired
     ClsActionRepository clsActionRepository;
@@ -38,7 +41,7 @@ public class ActionImport {
             responseForm.setSuccess(true);
             log.info("startImportAction Start");
 
-            ServiceAPI serviceAPI = ControllerAPI.getApi("http://10.3.30.152/skol/hs/");
+            ServiceAPI serviceAPI = ControllerAPI.getApi(URL_IMPORT);
             Response<Action> actionResponse = serviceAPI.getAllActions().execute();
             if (actionResponse.isSuccessful()) {
                 Action action = actionResponse.body();
