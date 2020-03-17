@@ -162,6 +162,9 @@ public class DocPageController {
         for (ClsPracticePractice clsPracticePractice : clsPracticePracticeIterable) {
             RelatedDocument relatedDocument = new RelatedDocument();
             relatedDocument.setType(clsPracticePractice.getType());
+            relatedDocument.setCondition((clsPracticePractice.getCondition() != null)&&(!clsPracticePractice.getCondition().isEmpty()) ?
+                    clsPracticePractice.getCondition() : ""
+            );
 
             if (type.equals("1to2")) {
                 relatedDocument.setRegPractice(regPracticeRepository.findFirstByCode(clsPracticePractice.getPractice2Code()).get());

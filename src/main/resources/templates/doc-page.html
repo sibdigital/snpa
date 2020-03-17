@@ -21,7 +21,7 @@
 <header id="pageHeader" th:insert="~{partials/main :: header}"></header>
 
 <content id="pageContent">
-    <div class="col s12">
+    <table class="col s12">
         <div class="row">
             <div class="input-field col s12">
                 <button onclick="window.history.back()" class="btn"><i class="fas fa-arrow-left"></i></button>
@@ -64,6 +64,7 @@
                 <div class="doc-content" th:text="${regPractice.content}"></div>
             </div>
         </div>
+
         <div class="row" th:if="${regPracticeChildrenIterable.size()!=0}">
             <div class="input-field col s12">
                 <ul class="collapsible">
@@ -79,34 +80,75 @@
                 </ul>
             </div>
         </div>
-        <div class="row" th:if="${relatedDocumentList12.size()!=0}">
-            <div class="input-field col s12">
-                <ul class="collection">
-                    <li class="collection-item" th:each="relatedDocument, stat : ${relatedDocumentList12}">
-                        <span th:text="${stat.count} + '. ' "></span>
-                        <span th:text="'Данный документ ' "></span>
-                        <span th:text="${relatedDocument.type} + ': ' "></span>
-                        <a th:if="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
-                        <a th:unless="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
-                    </li>
-                </ul>
+
+        <div class="divider"></div>
+
+        <div class="section" th:if="${regPractice.docType.equals('q')}">
+            <div class="section-title">Уточняющий вопрос:</div>
+            <div class="row" th:if="${relatedDocumentList12.size()!=0}">
+                <div class="col s12">
+                    <div class="row">
+                        <div class="col s6"></div>
+                        <div class="col s6">Ответ клиента</div>
+                    </div>
+                    <div class="row" th:each="relatedDocument : ${relatedDocumentList12}">
+                        <div class="col s6" th:if="${!relatedDocument.type.equals('Основывается')}" th:text="${relatedDocument.condition}">
+                        </div>
+                        <div class="col s6" th:if="${!relatedDocument.type.equals('Основывается')}">
+                            <a th:if="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="${relatedDocument.type}"></a>
+                            <a th:unless="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&previous='+${code}}" th:text="${relatedDocument.type}"></a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row" th:if="${relatedDocumentList21.size()!=0}">
-            <div class="input-field col s12">
-                <ul class="collection">
-                    <li class="collection-item" th:each="relatedDocument, stat : ${relatedDocumentList21}">
-                        <span th:text="${stat.count} + '. ' "></span>
+
+        <div class="divider"></div>
+
+        <div class="section">
+            <div class="section-title">Документ основывается на:</div>
+            <div class="row" th:if="${relatedDocumentList12.size()!=0}">
+                <div class="row" th:each="relatedDocument, stat : ${relatedDocumentList12}">
+                    <div class="col s10" th:if="${relatedDocument.type.equals('Основывается')}">
                         <a th:if="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
                         <a th:unless="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
-                        <span th:text="${relatedDocument.type} + ': ' "></span>
-                        <span th:text="'Данный документ ' "></span>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div>
         </div>
-        <a th:href="@{'network?id='+ ${regPractice.id}}" th:text="'Просмотреть связи'"></a>
-        <div>
+
+        <div class="divider"></div>
+
+        <div class="section" th:if="${relatedDocumentList21.size()!=0 && regPractice.docType.equals('q')}">
+            <div class="section-title">Родительский вопрос:</div>
+            <div class="row">
+                <div class="col s10" th:each="relatedDocument, stat : ${relatedDocumentList21}">
+                    <a th:if="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
+                    <a th:unless="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" th:if="${relatedDocumentList21.size()!=0 && !regPractice.docType.equals('q')}">
+            <div class="section-title">Связанные документы:</div>
+            <div class="row">
+                <div class="col s10" th:each="relatedDocument, stat : ${relatedDocumentList21}">
+                    <span th:text="${stat.count} + '. ' "></span>
+                    <span th:text="${relatedDocument.condition}"></span>
+                    <a th:if="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&searchId='+${searchId}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
+                    <a th:unless="${searchId}" th:href="@{'docPage?id='+${relatedDocument.regPractice.id}+'&previous='+${code}}" th:text="${relatedDocument.regPractice.name}"></a>
+                    <span th:text="${relatedDocument.type} + ': ' "></span>
+                    <span th:text="'Данный документ ' "></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="section">
+            <a class="section-title" th:href="@{'network?id='+ ${regPractice.id}}" th:text="'Просмотреть связи'"></a>
+        </div>
+
+        <div class="section">
             <input id="docPageId" type="hidden" th:value="${id}"/>
             <input id="ratingId" type="hidden" th:value="${ratingId}"/>
             <div class="input-field">
