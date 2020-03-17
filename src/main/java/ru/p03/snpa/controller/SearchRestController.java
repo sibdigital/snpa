@@ -152,14 +152,14 @@ public class SearchRestController {
         }
         String[] codeAttribute = new String[size];
 
-        int i = 0;
+    int i = 0;
         for(RegPracticeAttribute regPracticeAttribute : regPracticeAttributeIterable) {
-            codeAttribute[i] = regPracticeAttribute.getCodeAttribute();
-            i++;
-        }
+        codeAttribute[i] = regPracticeAttribute.getCodeAttribute();
+        i++;
+    }
 
         return codeAttribute;
-    }
+}
 
     @PostMapping("/search")
     public ResultForm search(@RequestBody SearchForm searchForm) {
@@ -181,23 +181,23 @@ public class SearchRestController {
             return resultForm;
 
 
-            if (searchForm.getSearchType().equals("Q")){
+            if (searchForm.getSearchType().equals("Q")) {
                 searchForm.setSearchType("ALL");
-            }
-            //предварительный поиск по вопросам и получение из подходящих вопросов тегов
-            if (!searchForm.getSearchText().equals("")) {
-                Iterable<ClsQuestion> clsQuestions = clsQuestionRepository.findAllByContentAndKeywords(searchForm.getSearchText());
+
+                //предварительный поиск по вопросам и получение из подходящих вопросов тегов
+                if (!searchForm.getSearchText().equals("")) {
+                    Iterable<ClsQuestion> clsQuestions = clsQuestionRepository.findAllByContentAndKeywords(searchForm.getSearchText());
 //                final Collection<String> suggestionsForWord = Word2VecModelInitializer.getInitedWord2VecAdvisor()
 //                        .getSuggestionsForWord("возраст", 3);
-                List<String> tagList = new ArrayList<String>();
-                tagList.addAll(Arrays.asList(searchForm.getSearchTagList()));
-               // clsQuestions.forEach(clsQuestion -> tagList.add('Q' + clsQuestion.getCode()));
-                if (clsQuestions.iterator().hasNext() ){
-                    tagList.add('Q' + clsQuestions.iterator().next().getCode());
-                    searchForm.setSearchTagList( tagList.toArray(new String[tagList.size()]) );
+                    List<String> tagList = new ArrayList<String>();
+                    tagList.addAll(Arrays.asList(searchForm.getSearchTagList()));
+                    // clsQuestions.forEach(clsQuestion -> tagList.add('Q' + clsQuestion.getCode()));
+                    if (clsQuestions.iterator().hasNext()) {
+                        tagList.add('Q' + clsQuestions.iterator().next().getCode());
+                        searchForm.setSearchTagList(tagList.toArray(new String[tagList.size()]));
+                    }
                 }
             }
-
             // search start
             if (searchForm.getSearchTagList().length != 0) {
                 log.info(dateFormat.format(new Date()) + ": start filterByTagsAndSearchType");
