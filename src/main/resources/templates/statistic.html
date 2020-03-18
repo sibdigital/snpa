@@ -14,14 +14,10 @@
     <link rel="stylesheet" href="css/fontawesome.min.css">
     <link rel="stylesheet" href="css/regular.min.css">
     <link rel="stylesheet" href="css/solid.min.css">
-    <link rel="stylesheet" href="js/webix/webix.css">
-    <link rel="stylesheet" href="js/webix/pivot/pivot.css">
 
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/materialize.min.js"></script>
     <script src="js/select2.min.js"></script>
-    <script src="js/webix/webix.js"></script>
-    <script src="js/webix/pivot/pivot.js"></script>
     <script src="js/datatables.min.js"></script>
 
 </head>
@@ -51,13 +47,7 @@
                     </div>
                 </form>
             </div>
-            <!--
-            <div class="col s2">
-                <a href="statisticPivot"><i class="fas fa-chart-area"></i>Сводная таблица</a>
-            </div>
-            -->
         </div>
-
 
         <table id="myDatatable" class="display" style="width: 100%;">
             <thead>
@@ -75,7 +65,7 @@
             <tbody>
                 <tr th:each="item:${allStatList}">
                     <td th:text="${item.searchDateTime}"></td>
-                    <td th:text="${item.searchType}"></td>
+                    <td th:text="${(item.searchType == null || item.searchType.isEmpty()) ? '' : sTypeMap.get(item.searchType)}"></td>
                     <td th:text="${item.searchText}"></td>
                     <td th:text="${item.searchDateOfDocumentStart}"></td>
                     <td th:text="${item.searchDateOfDocumentEnd}"></td>
@@ -98,13 +88,44 @@
             </tbody>
         </table>
 
+        <br>
+        <div class="divider"></div>
+        <div class="row">
+            <div class="col s6">
+                <h5>Статистика по типам запросов</h5>
+                <div class="col s12" th:each="stat:${statMap}">
+                    <div class="col s3" th:text="${sTypeMap.get(stat.getKey())} + ': '"></div>
+                    <div class="col s2" th:text="${stat.getValue()}"></div>
+                </div>
+                <div class="col s12">
+                    <div class="col s3">Всего:</div>
+                    <div class="col s2" th:text="${statSum}"
+                         style="border-top: solid; border-top-width: thin;"
+                    ></div>
+                </div>
+            </div>
+            <div class="col s6">
+                <h5>Статистика по тегам</h5>
+                <div class="col s12" th:each="stat:${statTagMap}">
+                    <div class="col s3" th:text="${sTypeMap.get(stat.getKey())} + ': '"></div>
+                    <div class="col s2" th:text="${stat.getValue()}"></div>
+                </div>
+                <div class="col s12">
+                    <div class="col s3">Всего:</div>
+                    <div class="col s2" th:text="${tagSum}"
+                         style="border-top: solid; border-top-width: thin;"
+                    ></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 </content>
 
 <footer id="pageFooter" th:insert="~{partials/main :: footer}"></footer>
 
-<script>
+<script th:inline="javascript">
     $(document).ready(function () {
         $('.datepicker').datepicker({
             container: 'html',
@@ -130,15 +151,16 @@
         $('#myDatatable').DataTable(
             {
                 "dom": "lfrtip",
-                "scrollY": "50vh",
+                "scrollY": "45vh",
                 "scrollCollapse": true,
                 "select": false,
                 "paging": false,
                 "autoWidth": true,
+                order: [ [0, "desc"] ],
                 "language": {
                     "lengthMenu": "Показывать _MENU_ ",
                     "search": "Поиск:",
-                    "zeroRecords": "Ничего не найдено ",
+                    "zeroRecords": "Ничего не найдено",
                     "info": "Показано с _START_ по _END_ из _TOTAL_ записей",
                     "infoEmpty": "Показано с 0 по 0 из 0 записей",
                     "infoFiltered": "(filtered from _MAX_ total records)",
