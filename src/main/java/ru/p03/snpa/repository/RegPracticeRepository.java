@@ -10,7 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import javax.transaction.Transactional;
+import java.sql.Array;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface RegPracticeRepository extends CrudRepository<RegPractice, Long> {

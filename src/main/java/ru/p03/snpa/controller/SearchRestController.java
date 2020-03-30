@@ -13,7 +13,14 @@ import ru.p03.snpa.repository.*;
 import ru.p03.snpa.utils.DateUtils;
 import ru.p03.snpa.utils.ListUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.PersistenceContext;
+import javax.persistence.StoredProcedureQuery;
 import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
+import java.sql.Array;
+import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -54,6 +61,16 @@ public class SearchRestController {
 
     @Autowired
     private ClsQuestionRepository clsQuestionRepository;
+
+    @Autowired
+    private RegPractice3Repository regPractice3Repository;
+
+
+    @Autowired
+    DataSource dataSource;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
 
     private static final Logger log = LoggerFactory.getLogger(SearchRestController.class);
@@ -357,6 +374,98 @@ public class SearchRestController {
             saveRegSearchStatistic(searchForm, resultForm);
             return resultForm;
 
+        } catch (Exception e) {
+            resultForm.setSuccess(true);
+            resultForm.setData(e.toString());
+            System.out.println(e.toString());
+            return resultForm;
+        }
+    }
+
+    @PostMapping("/searchNew")
+    public ResultForm searchNew(@RequestBody SearchForm searchForm) {
+
+        ResultForm resultForm = new ResultForm();
+        resultForm.setSuccess(true);
+        long start = System.currentTimeMillis();
+        log.info(dateFormat.format(new Date()) + ": start search");
+        log.info(searchForm.toString());
+
+        if ((searchForm.getSearchTagList().length == 0)
+                &&(searchForm.getSearchType().equals("ALL"))
+                &&(searchForm.getSearchRelevance().equals("ALL"))
+                &&(searchForm.getSearchDateOfDocumentStart().equals(""))
+                &&(searchForm.getSearchDateOfDocumentEnd().equals(""))
+                &&(searchForm.getSearchText().equals("")))
+            return resultForm;
+        try {
+            String docTypeConditionString = "";
+            switch (searchForm.getSearchType()) {
+                case "P":  docTypeConditionString = " (doc_type = 'p') ";
+                    break;
+                case "R":  docTypeConditionString = " (doc_type = 'n') ";
+                    break;
+                case "Z":  docTypeConditionString = " (doc_type = 'z') ";
+                    break;
+                case "Q":  docTypeConditionString = " (doc_type = 'q') ";
+                    break;
+            }
+
+            String actualConditionString = "";
+            switch (searchForm.getSearchRelevance()) {
+                case "VALID":  actualConditionString = " (date_start < CURRENT_DATE and date_end > CURRENT_DATE) ";
+                    break;
+                case "EXPIRED":  actualConditionString = " (date_end < CURRENT_DATE)";
+                    break;
+                case "INVALID":  actualConditionString = " (date_start > CURRENT_DATE)";
+                    break;
+            }
+
+            String periodConditionString = String.format(" (pr.date_start between '%s' and '%s') ",
+                    searchForm.getSearchDateOfDocumentStart().equals("") ? "1000-01-01" : searchForm.getSearchDateOfDocumentStart(),
+                    searchForm.getSearchDateOfDocumentEnd().equals("") ? "2999-12-31" : searchForm.getSearchDateOfDocumentEnd());
+
+            String whereConditionString = docTypeConditionString;
+            if (!whereConditionString.equals("")) {
+                whereConditionString += " and ";
+            }
+            whereConditionString += actualConditionString;
+            if (!whereConditionString.equals("")){
+                whereConditionString += " and ";
+            }
+            whereConditionString += periodConditionString;
+            if (!whereConditionString.equals("")){
+                whereConditionString = " where " + whereConditionString;
+            }
+
+            String orderConditionString = " ORDER BY pr.date_of_document DESC ";
+
+            resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
+
+            List<String> tag_actions = new ArrayList<>();
+            List<String> tag_lf = new ArrayList<>();
+            List<String> tag_payments = new ArrayList<>();
+            for(int i=0; i< searchForm.getSearchTagList().length; i++){
+                if (searchForm.getSearchTagList()[i].charAt(0) == 'A') {
+                    tag_actions.add(searchForm.getSearchTagList()[i].substring(1));
+                }
+
+                if (searchForm.getSearchTagList()[i].charAt(0) == 'L') {
+                    tag_lf.add(searchForm.getSearchTagList()[i].substring(1));
+                }
+
+                if (searchForm.getSearchTagList()[i].charAt(0) == 'P') {
+                    tag_payments.add(searchForm.getSearchTagList()[i].substring(1));
+                }
+            }
+
+            Iterable<RegPractice> regPracticeIterable = regPractice3Repository.findPracticeByParameters
+                    (searchForm.getSearchText(), tag_payments.toArray(new String[0]),tag_actions.toArray(new String[0]),tag_lf.toArray(new String[0]), whereConditionString, orderConditionString);
+
+            resultForm.setRegPractice2Iterable(regPracticeIterable);
+            resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
+            saveRegSearchStatistic(searchForm, resultForm);
+            return resultForm;
         } catch (Exception e) {
             resultForm.setSuccess(true);
             resultForm.setData(e.toString());

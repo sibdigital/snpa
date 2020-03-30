@@ -29,9 +29,9 @@ ALTER SCHEMA main OWNER TO postgres;
 -- Name: get_reg_practice(text, character varying[], character varying[], character varying[]); Type: FUNCTION; Schema: main; Owner: postgres
 --
 
-CREATE FUNCTION main.get_reg_practice(text_query text, payment_types character varying[], actions character varying[], life_situations character varying[]) RETURNS TABLE(id bigint, name character varying, content text, code character varying, number character varying)
+CREATE or replace FUNCTION main.get_reg_practice(text_query text, payment_types character varying[], actions character varying[], life_situations character varying[]) RETURNS TABLE(id bigint, name character varying, content text, code character varying, number character varying)
     LANGUAGE plpgsql
-    AS $$
+AS $$
 DECLARE
     payment_type_type integer = 1;
     action_type integer = 2;
@@ -68,7 +68,11 @@ BEGIN
                  ATTR_PRACT AS(
                      SELECT CODE_PRACTICE
                      FROM MAIN.REG_PRACTICE_ATTRIBUTE AS RPA
-                              INNER JOIN ATTR ON (RPA.CODE_ATTRIBUTE, RPA.ATTRIBUTE_TYPE) = (ATTR.CODE_ATTRIBUTE, ATTR.ATTRIBUTE_TYPE)
+                          --         INNER JOIN ATTR ON (RPA.CODE_ATTRIBUTE, RPA.ATTRIBUTE_TYPE) = (ATTR.CODE_ATTRIBUTE, ATTR.ATTRIBUTE_TYPE)
+                     WHERE
+                             (select count (*) from MAIN.REG_PRACTICE_ATTRIBUTE AS RPA_in inner join ATTR ON (RPA_in.CODE_ATTRIBUTE, RPA_in.ATTRIBUTE_TYPE) = (ATTR.CODE_ATTRIBUTE, ATTR.ATTRIBUTE_TYPE)
+                              where RPA_in.code_practice = rpa.code_practice)
+                             = attributes_count
                  )
             select
                 RP.id,
@@ -77,9 +81,20 @@ BEGIN
                 cast (RP.code as character varying(255)) as code,
                 cast (RP.number as character varying(255)) as number
             from main.reg_practice AS RP
-            WHERE (MAIN.make_tsvector(RP.content) @@ to_tsquery('russian', text_query)
-                OR MAIN.make_tsvector(RP.name) @@ to_tsquery('russian', text_query)
-                )
+            WHERE
+              --    (MAIN.make_tsvector(RP.content) @@ to_tsquery('russian', text_query)
+              --  OR MAIN.make_tsvector(RP.name) @@ to_tsquery('russian', text_query)
+              --  )
+                case when text_query <> '' then
+                             (
+                                             setweight(coalesce(RP.ts_number,''), 'A') ||
+                                             setweight(coalesce(RP.ts_name,''), 'B') ||
+                                             setweight(coalesce(RP.ts_parent_name,''), 'B') ||
+                                             setweight(coalesce(RP.ts_content,''), 'C')
+                                 ) @@ plainto_tsquery('russian',text_query)
+                     else
+                         true
+                    end
               AND RP.CODE IN (SELECT CODE_PRACTICE FROM ATTR_PRACT)
         ;
     ELSE
@@ -90,15 +105,21 @@ BEGIN
                          cast (RP.code as character varying(255)) as code,
                          cast (RP.number as character varying(255)) as number
                      from main.reg_practice as RP
-                     WHERE (MAIN.make_tsvector(RP.content) @@ to_tsquery('russian', text_query)
-                         OR MAIN.make_tsvector(RP.name) @@ to_tsquery('russian', text_query)
-                               )
+                     WHERE
+                         /*
+                         (MAIN.make_tsvector(RP.content) @@ to_tsquery('russian', text_query)
+                          OR MAIN.make_tsvector(RP.name) @@ to_tsquery('russian', text_query)
+                          )*/
+                             (
+                                             setweight(coalesce(RP.ts_number,''), 'A') ||
+                                             setweight(coalesce(RP.ts_name,''), 'B') ||
+                                             setweight(coalesce(RP.ts_parent_name,''), 'B') ||
+                                             setweight(coalesce(RP.ts_content,''), 'C')
+                                 ) @@ plainto_tsquery('russian',text_query)
         ;
     END IF;
 END
 $$;
-
-
 ALTER FUNCTION main.get_reg_practice(text_query text, payment_types character varying[], actions character varying[], life_situations character varying[]) OWNER TO postgres;
 
 --
