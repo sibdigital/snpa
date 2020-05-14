@@ -135,9 +135,14 @@ public class DocPageController {
         FileInputStream inputStream = new FileInputStream(downloadFile);
         response.setContentLength((int) downloadFile.length());
 
+        //ban 2020-05-13 begin
+        String downloadFileName = downloadFile.getName();
+        downloadFileName = downloadFileName.replaceAll(" ","_");
+        //end
+
         // set headers for the response
         String headerKey = "Content-Disposition";
-        String headerValue = String.format("attachment; filename=\"%s\"", downloadFile.getName());
+        String headerValue = String.format("attachment; filename=\"%s\"", downloadFileName);//ban 2020-05-13
         response.setHeader(headerKey, headerValue);
 
         // get output stream of the response
