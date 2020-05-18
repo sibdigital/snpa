@@ -47,6 +47,9 @@ public class RegSearchStatistic {
     @Column(name = "PAYMENT_TYPE_TAGS")
     private String[] paymentTypeTags;
     @Type(type = "ru.p03.snpa.entity.GenericArrayTags")
+    @Column(name = "QUESTION_TAGS")
+    private String[] questionTags;
+    @Type(type = "ru.p03.snpa.entity.GenericArrayTags")
     @Column(name = "RESULTS")
     private String[] results;
 
@@ -68,6 +71,7 @@ public class RegSearchStatistic {
                 ", actionTags=" + Arrays.toString(actionTags) +
                 ", lifeSituationTags=" + Arrays.toString(lifeSituationTags) +
                 ", paymentTypeTags=" + Arrays.toString(paymentTypeTags) +
+                ", questionTags=" + Arrays.toString(questionTags) +
                 ", results=" + Arrays.toString(results) +
                 '}';
     }
@@ -190,6 +194,14 @@ public class RegSearchStatistic {
 
     public void setPaymentTypeTags(String[] paymentTypeTags) {
         this.paymentTypeTags = paymentTypeTags;
+    }
+
+    public String[] getQuestionTags() {
+        return questionTags;
+    }
+
+    public void setQuestionTags(String[] questionTags) {
+        this.questionTags = questionTags;
     }
 
     public String[] getResults() {

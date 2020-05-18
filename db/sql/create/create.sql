@@ -29,13 +29,14 @@ ALTER SCHEMA main OWNER TO postgres;
 -- Name: get_reg_practice(text, character varying[], character varying[], character varying[]); Type: FUNCTION; Schema: main; Owner: postgres
 --
 
-CREATE or replace FUNCTION main.get_reg_practice(text_query text, payment_types character varying[], actions character varying[], life_situations character varying[]) RETURNS TABLE(id bigint, name character varying, content text, code character varying, number character varying)
+CREATE or replace FUNCTION main.get_reg_practice(text_query text, payment_types character varying[], actions character varying[], life_situations character varying[], questions character varying[]) RETURNS TABLE(id bigint, name character varying, content text, code character varying, number character varying)
     LANGUAGE plpgsql
 AS $$
 DECLARE
     payment_type_type integer = 1;
     action_type integer = 2;
     life_situation_type integer = 3;
+    question_type integer = 5;
     attributes_count integer;
 BEGIN
 
@@ -50,6 +51,9 @@ BEGIN
                                              UNION
                                              SELECT CODE_ATTRIBUTE, ATTRIBUTE_TYPE FROM
                                                  MAIN.GET_REG_PRACTICE_PARAMETER_TABLE(life_situations, life_situation_type)
+                                             UNION
+                                             SELECT CODE_ATTRIBUTE, ATTRIBUTE_TYPE FROM
+                                                 MAIN.GET_REG_PRACTICE_PARAMETER_TABLE(questions, question_type)
                                          ) AS S
          ) AS S;
 
@@ -64,6 +68,9 @@ BEGIN
                 UNION
                 SELECT CODE_ATTRIBUTE, ATTRIBUTE_TYPE FROM
                     MAIN.GET_REG_PRACTICE_PARAMETER_TABLE(life_situations, life_situation_type)
+                UNION
+                SELECT CODE_ATTRIBUTE, ATTRIBUTE_TYPE FROM
+                    MAIN.GET_REG_PRACTICE_PARAMETER_TABLE(questions, question_type)
             ),
                  ATTR_PRACT AS(
                      SELECT CODE_PRACTICE
@@ -120,7 +127,7 @@ BEGIN
     END IF;
 END
 $$;
-ALTER FUNCTION main.get_reg_practice(text_query text, payment_types character varying[], actions character varying[], life_situations character varying[]) OWNER TO postgres;
+ALTER FUNCTION main.get_reg_practice(text_query text, payment_types character varying[], actions character varying[], life_situations character varying[], questions character varying[]) OWNER TO postgres;
 
 --
 -- Name: get_reg_practice_parameter_table(character varying[], integer); Type: FUNCTION; Schema: main; Owner: postgres

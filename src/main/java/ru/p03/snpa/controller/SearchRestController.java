@@ -445,6 +445,7 @@ public class SearchRestController {
             List<String> tag_actions = new ArrayList<>();
             List<String> tag_lf = new ArrayList<>();
             List<String> tag_payments = new ArrayList<>();
+            List<String> tag_questions = new ArrayList<>();
             for(int i=0; i< searchForm.getSearchTagList().length; i++){
                 if (searchForm.getSearchTagList()[i].charAt(0) == 'A') {
                     tag_actions.add(searchForm.getSearchTagList()[i].substring(1));
@@ -457,10 +458,14 @@ public class SearchRestController {
                 if (searchForm.getSearchTagList()[i].charAt(0) == 'P') {
                     tag_payments.add(searchForm.getSearchTagList()[i].substring(1));
                 }
+
+                if (searchForm.getSearchTagList()[i].charAt(0) == 'Q') {
+                    tag_questions.add(searchForm.getSearchTagList()[i].substring(1));
+                }
             }
 
             Iterable<RegPractice> regPracticeIterable = regPractice3Repository.findPracticeByParameters
-                    (searchForm.getSearchText(), tag_payments.toArray(new String[0]),tag_actions.toArray(new String[0]),tag_lf.toArray(new String[0]), whereConditionString, orderConditionString);
+                    (searchForm.getSearchText(), tag_payments.toArray(new String[0]),tag_actions.toArray(new String[0]),tag_lf.toArray(new String[0]), tag_questions.toArray(new String[0]), whereConditionString, orderConditionString);
 
             resultForm.setRegPractice2Iterable(regPracticeIterable);
             resultForm.setTime(String.valueOf(System.currentTimeMillis() - start));
@@ -1096,6 +1101,15 @@ public class SearchRestController {
                 }
             }
         }
+        if (c == 'Q') {
+            Iterable<ClsQuestion> clsQuestionIterable = clsQuestionRepository.findAllByParentCode(code);
+            for(ClsQuestion clsQuestion : clsQuestionIterable){
+                codeChildAttribute.add(clsQuestion.getCode());
+                if (clsQuestionRepository.findFirstByParentCode(clsQuestion.getCode()).isPresent()) {
+                    codeChildAttribute.addAll(getAllMyChild(clsQuestion.getCode(), 'Q'));
+                }
+            }
+        }
 
         return codeChildAttribute;
     }
@@ -1177,16 +1191,19 @@ public class SearchRestController {
         List<String> lifeSituationList = new ArrayList<>();
         List<String> actionList = new ArrayList<>();
         List<String> paymentTypeList = new ArrayList<>();
+        List<String> questionList = new ArrayList<>();
         String[] tagMas = searchForm.getSearchTagList();
         for (int i = 0; i < tagMas.length; i++) {
             if (tagMas[i].charAt(0) == 'L') lifeSituationList.add(tagMas[i].substring(1));
             if (tagMas[i].charAt(0) == 'A') actionList.add(tagMas[i].substring(1));
             if (tagMas[i].charAt(0) == 'P') paymentTypeList.add(tagMas[i].substring(1));
+            if (tagMas[i].charAt(0) == 'Q') questionList.add(tagMas[i].substring(1));
         }
 
         regSearchStatistic.setLifeSituationTags(ListUtils.listStringToMasString(lifeSituationList));
         regSearchStatistic.setActionTags(ListUtils.listStringToMasString(actionList));
         regSearchStatistic.setPaymentTypeTags(ListUtils.listStringToMasString(paymentTypeList));
+        regSearchStatistic.setQuestionTags(ListUtils.listStringToMasString(questionList));
 
         return regSearchStatistic;
     }

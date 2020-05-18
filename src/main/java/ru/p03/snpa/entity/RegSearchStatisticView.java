@@ -39,6 +39,9 @@ public class RegSearchStatisticView {
     @Type(type = "ru.p03.snpa.entity.GenericArrayTags")
     @Column(name = "PAYMENT_TYPE_TAGS")
     private String[] paymentTypeTags;
+    @Type(type = "ru.p03.snpa.entity.GenericArrayTags")
+    @Column(name = "QUESTION_TAGS")
+    private String[] questionTags;
 
     @Transient
     private List<ClsAction> actionTagList;
@@ -46,6 +49,8 @@ public class RegSearchStatisticView {
     private List<ClsLifeSituation> lifeSituationTagList;
     @Transient
     private List<ClsPaymentType> paymentTypeTagList;
+    @Transient
+    private List<ClsQuestion> questionTagList;
 
     @Override
     public String toString() {
@@ -61,6 +66,7 @@ public class RegSearchStatisticView {
                 ", actionTags=" + Arrays.toString(actionTags) +
                 ", lifeSituationTags=" + Arrays.toString(lifeSituationTags) +
                 ", paymentTypeTags=" + Arrays.toString(paymentTypeTags) +
+                ", questionTags=" + Arrays.toString(questionTags) +
                 '}';
     }
 
@@ -152,6 +158,14 @@ public class RegSearchStatisticView {
         this.paymentTypeTags = paymentTypeTags;
     }
 
+    public String[] getQuestionTags() {
+        return questionTags;
+    }
+
+    public void setQuestionTags(String[] questionTags) {
+        this.questionTags = questionTags;
+    }
+
     public List<ClsAction> getActionTagList() {
         return actionTagList;
     }
@@ -174,5 +188,12 @@ public class RegSearchStatisticView {
 
     public void setPaymentTypeTagList(List<ClsPaymentType> paymentTypeTagList) {
         this.paymentTypeTagList = paymentTypeTagList;
+    }
+    public List<ClsQuestion> getQuestionTagList() {
+        return questionTagList;
+    }
+
+    public void setQuestionTagList(List<ClsQuestion> questionTagList) {
+        this.questionTagList = questionTagList;
     }
 }

@@ -15,9 +15,9 @@ public class RegPracticeCustomRepositoryImpl implements RegPracticeCustomReposit
     private EntityManager entityManager;
 
     @Override
-    public List<RegPractice> findPracticeByParameters(String text_query, String[] payment_types, String[] actions, String[] life_situations, String whereConditionString, String orderConditionString) {
+    public List<RegPractice> findPracticeByParameters(String text_query, String[] payment_types, String[] actions, String[] life_situations, String[] questions, String whereConditionString, String orderConditionString) {
         StringBuilder sb = new StringBuilder();
-        sb.append("select * from main.get_reg_practice(:text_query, :payment_types, :actions, :life_situations) as temp_pr ");
+        sb.append("select * from main.get_reg_practice(:text_query, :payment_types, :actions, :life_situations, :questions) as temp_pr ");
         sb.append(" inner join main.reg_practice as pr on pr.id = temp_pr.id ");
         sb.append(whereConditionString);
         sb.append(orderConditionString);
@@ -27,6 +27,7 @@ public class RegPracticeCustomRepositoryImpl implements RegPracticeCustomReposit
         query.setParameter("payment_types", new TypedParameterValue(StringArrayType.INSTANCE, payment_types));
         query.setParameter("actions", new TypedParameterValue(StringArrayType.INSTANCE, actions));
         query.setParameter("life_situations", new TypedParameterValue(StringArrayType.INSTANCE, life_situations));
+        query.setParameter("questions", new TypedParameterValue(StringArrayType.INSTANCE, questions));
 
         List<RegPractice> res = query.getResultList();
         return res;
