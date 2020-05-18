@@ -429,12 +429,15 @@ public class SearchRestController {
             if (!whereConditionString.equals("")) {
                 whereConditionString += " and ";
             }
-            whereConditionString += actualConditionString;
-            if (!whereConditionString.equals("")){
+            if (!actualConditionString.equals("")){
+                whereConditionString += actualConditionString;
                 whereConditionString += " and ";
             }
-            whereConditionString += periodConditionString;
-            if (!whereConditionString.equals("")){
+            if (!periodConditionString.equals("")) {
+                whereConditionString += periodConditionString;
+            }
+
+            if (!whereConditionString.equals("")) {
                 whereConditionString = " where " + whereConditionString;
             }
 
