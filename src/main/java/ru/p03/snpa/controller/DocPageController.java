@@ -1,6 +1,7 @@
 package ru.p03.snpa.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -48,6 +49,9 @@ public class DocPageController {
     RegPracticeRatingRepository regPracticeRatingRepository;
     @Autowired
     private ClsQuestionRepository clsQuestionRepository;
+
+    @Value("${linuxMountFolder}")
+    private String linuxMountFolder;
 
     public static final int BUFFER_SIZE = 4096;
 
@@ -129,16 +133,23 @@ public class DocPageController {
             return;
 
         // construct the complete absolute path of the file
-        String fullPath = "\\\\10.3.30.151\\UsersOtd\\SNPA\\" + repName;
-        //String fullPath = "//10.3.30.151/UsersOtd/SNPA/" + repName;
+        String osName = System.getProperty("os.name");
+        String fullPath;
+        if (osName.substring(0, 1).equals("W")) {
+            //windows:
+            fullPath = "\\\\10.3.30.151\\UsersOtd\\SNPA\\" + repName;
+        } else {
+            //linux:
+            repName = repName.replaceAll("\\\\","/");
+            fullPath = linuxMountFolder + repName;
+        }
+
         File downloadFile = new File(fullPath);
         FileInputStream inputStream = new FileInputStream(downloadFile);
         response.setContentLength((int) downloadFile.length());
 
-        //ban 2020-05-13 begin
         String downloadFileName = downloadFile.getName();
         downloadFileName = downloadFileName.replaceAll(" ","_");
-        //end
 
         // set headers for the response
         String headerKey = "Content-Disposition";
