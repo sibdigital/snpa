@@ -50,8 +50,10 @@ public class DocPageController {
     @Autowired
     private ClsQuestionRepository clsQuestionRepository;
 
-    @Value("${linuxMountFolder}")
-    private String linuxMountFolder;
+    @Value("${linuxFilesPath}")
+    private String linuxFilesPath;
+    @Value("${windowsFilesPath}")
+    private String windowsFilesPath;
 
     public static final int BUFFER_SIZE = 4096;
 
@@ -137,11 +139,11 @@ public class DocPageController {
         String fullPath;
         if (osName.substring(0, 1).equals("W")) {
             //windows:
-            fullPath = "\\\\10.3.30.151\\UsersOtd\\SNPA\\" + repName;
+            fullPath = windowsFilesPath + repName;
         } else {
             //linux:
             repName = repName.replaceAll("\\\\","/");
-            fullPath = linuxMountFolder + repName;
+            fullPath = linuxFilesPath + repName;
         }
 
         File downloadFile = new File(fullPath);
